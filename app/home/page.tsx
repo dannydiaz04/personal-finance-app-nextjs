@@ -43,7 +43,7 @@ const Home = () => {
             });
 
             // Fetch user data
-            const response = await axios.get(`/api/auth/user/${authUser.id}`, {
+            const response = await axios.get(`/api/auth/user/${authUser._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUser(response.data);

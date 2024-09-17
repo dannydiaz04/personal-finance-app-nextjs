@@ -28,6 +28,7 @@ export default function Login() {
       const data = await response.json()
 
       if (response.ok) {
+        console.log('Login Response', data); // Debugging login response
         login(data.token, data.user)
         router.push('/home')
       } else {

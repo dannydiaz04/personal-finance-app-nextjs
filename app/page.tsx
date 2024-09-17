@@ -11,14 +11,16 @@ export default function Page() {
 
     useEffect(() => {
         if (isAuthenticated) {
+            console.log('Authenticaton State: ', isAuthenticated);
             // Redirect to /pages/home if the user is authenticated
-            router.push('/home');
+            // router.push('/home');
         }
     }, [isAuthenticated, router]);
 
-    // If not authenticated, you might want to show a login form or a welcome message
+    // If not authenticated, show a login form or a welcome message
     return (
         <div>
+            <h1>{`Authentication state ${isAuthenticated}`}</h1>
             <Login />
         </div>
     );
