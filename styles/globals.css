@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Other global styles here */
+
+/* Reset some basic elements */
+/* html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+} */
+
+/* Set box-sizing for all elements */
+/* * {
+  box-sizing: border-box;
+} */
+
+/* Basic link styles */
+/* a {
+  color: inherit;
+  text-decoration: none;
+} */
+
+/* Main content container */
+/* main {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+} */
+
+/* Responsive images */
+/* img {
+  max-width: 100%;
+  height: auto;
+} */
+
+/* Basic button styles */
+/* button {
+  cursor: pointer;
+} */
+
+/* Utility classes */
+/* .text-center {
+  text-align: center;
+}
+
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.mb-1 {
+  margin-bottom: 1rem;
+} */
