@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Login() {
@@ -18,25 +18,15 @@ export default function Login() {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
+    console.log('Email ', email )
+    console.log('Password ', password )
+
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        console.log('Login Response', data); // Debugging login response
-        login(data.token, data.user)
-        router.push('/home')
-      } else {
-        setError(data.message || 'Login failed')
-      }
+      await login(email, password)
+      router.push('/home')
     } catch (err) {
       console.error('Login error:', err)
-      setError('An error occurred during login')
+      setError('Invalid email or password')
     }
   }
 
