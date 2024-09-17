@@ -1,10 +1,11 @@
 import NextAuth from "next-auth"
+import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from 'bcrypt'
 import dbConnect from '../../../lib/dbConnect'
 import User from '../../../models/User'
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -77,7 +78,7 @@ const handler = NextAuth({
 		},
 		async session({ session, token }) {
 			if (session?.user) {
-				session.user.id = token.id;
+				session.user.id = token.id as string;
 			}
 			return session;
 		},
@@ -89,6 +90,8 @@ const handler = NextAuth({
 		strategy: 'jwt',
 	},
 	debug: process.env.NODE_ENV === 'development',
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

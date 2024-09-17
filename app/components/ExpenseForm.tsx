@@ -1,15 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../contexts/AuthContext';
+import { useSession } from 'next-auth/react';
 
 // Define types for our form data and category
 type FormData = {
     amount: string;
     category: string;
     subcategory: string;
-    description: string;
     date: string;
 };
 
@@ -24,46 +22,37 @@ const ExpenseForm = () => {
         amount: '',
         category: '',
         subcategory: '',
-        description: '',
         date: ''
     });
     const [categories, setCategories] = useState<Category[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const { token } = useAuth();
+    const { data: session } = useSession();
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        if (session) fetchCategories();
+    }, [session]);
 
     const fetchCategories = async () => {
-        setIsLoading(true);
-        setError(null);
         try {
-            const response = await axios.get('/api/categories', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            setCategories(response.data);
-        } catch (err) {
-            setError('Failed to fetch categories');
-        } finally {
-            setIsLoading(false);
+            const res = await fetch('/api/categories');
+            if (!res.ok) throw new Error('Failed to fetch categories');
+            const data = await res.json();
+            console.log('Fetched categories:', data); // Add this line for debugging
+            setCategories(data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-
-        if (name === 'category') {
-            setFormData(prev => ({ ...prev, subcategory: '' }));
-        }
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+            ...(name === 'category' && { subcategory: '' })
+        }));
     };
 
-    const handleSubmitExpense = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!formData.category || !formData.subcategory) {
             alert('Please select both a category and a subcategory');
@@ -71,16 +60,8 @@ const ExpenseForm = () => {
         }
         try {
             const selectedCategory = categories.find(cat => cat._id === formData.category);
-            if (!selectedCategory) {
-                throw new Error('Invalid category not found');
-            }
-
-            const selectedSubcategory = selectedCategory.subCategories
-                ? selectedCategory.subCategories.find(sub => sub._id === formData.subcategory) 
-                : null;
-            if (!selectedSubcategory) {
-                throw new Error('Selected subcategory not found');
-            }
+            const selectedSubcategory = selectedCategory?.subCategories?.find(sub => sub._id === formData.subcategory);
+            if (!selectedCategory || !selectedSubcategory) throw new Error('Invalid category or subcategory');
 
             const expenseData = {
                 ...formData,
@@ -88,71 +69,42 @@ const ExpenseForm = () => {
                 subcategory: selectedSubcategory.name
             };
 
-            console.log('Submitting expense:', expenseData);
-
-            await axios.post('/api/expenses', expenseData, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const res = await fetch('/api/expenses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(expenseData),
             });
+
+            if (!res.ok) throw new Error('Failed to submit expense');
             alert('Expense submitted successfully');
-            // Reset form or redirect to another page
+            setFormData({ amount: '', category: '', subcategory: '', date: '' });
         } catch (error) {
-            console.error('Error submitting expense', error);
+            console.error('Error submitting expense:', error);
             alert('Error adding expense. Please try again.');
         }
-            
     };
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (!session) return <div>Please sign in to add expenses.</div>;
 
     const selectedCategory = categories.find(cat => cat._id === formData.category);
 
     return (
-        <form onSubmit={handleSubmitExpense}>
-            <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                placeholder="Amount"
-                required
-            />
-            <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-            >
+        <form onSubmit={handleSubmit}>
+            <input type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
+            <select name="category" value={formData.category} onChange={handleChange} required>
                 <option value="">Select Category</option>
-                {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                        {category.name}
-                    </option>
+                {categories.map(category => (
+                    <option key={category._id} value={category._id}>{category.name}</option>
                 ))}
             </select>
-            <select
-                name="subcategory"
-                value={formData.subcategory}
-                onChange={handleInputChange}
-                required
-                disabled={!formData.category}
-            >
+            <select name="subcategory" value={formData.subcategory} onChange={handleChange} required disabled={!formData.category}>
                 <option value="">Select Subcategory</option>
-                {selectedCategory && selectedCategory.subCategories &&
-                selectedCategory.subCategories.map((subcategory) => (
-                    <option key={subcategory._id} value={subcategory._id}>
-                        {subcategory.name}
-                    </option>
+                {selectedCategory?.subCategories?.map(subcategory => (
+                    <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
                 ))}
             </select>
-            <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                required
-            />
+            <input type="text" name="description" value={formData.description} onChange={handleChange} placeholder="Description" required />
+            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
             <button type="submit">Add Expense</button>
         </form>
     );

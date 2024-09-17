@@ -1,16 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+import { signIn } from 'next-auth/react'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
-  const { login } = useAuth()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -18,15 +17,21 @@ export default function Login() {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    console.log('Email ', email )
-    console.log('Password ', password )
-
     try {
-      await login(email, password)
-      router.push('/home')
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      })
+
+      if (result?.error) {
+        setError('Invalid email or password')
+      } else {
+        router.push('/home')
+      }
     } catch (err) {
       console.error('Login error:', err)
-      setError('Invalid email or password')
+      setError('An error occurred during login')
     }
   }
 
