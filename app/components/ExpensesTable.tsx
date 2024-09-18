@@ -80,14 +80,14 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-neon-blue font-bold cursor-pointer"
+                                    className="text-neon-blue font-bold cursor-pointer text-center border border-gray-700"
                                     onClick={() => handleSort(key)}
                                 >
                                     {key.charAt(0).toUpperCase() + key.slice(1)}
                                     <SortIcon columnKey={key} />
                                 </TableHead>
                             ))}
-                            <TableHead className="text-neon-blue font-bold">Actions</TableHead>
+                            <TableHead className="text-neon-blue font-bold text-center border border-gray-700">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -96,16 +96,16 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                                 key={expense._id} 
                                 className={`border-b border-gray-800 ${index % 2 === 0 ? 'bg-gray-900' : 'bg-black'} hover:bg-gray-800 transition-colors duration-200`}
                             >
-                                <TableCell className="py-4">{formatDate(expense.date)}</TableCell>
-                                <TableCell className="py-4">${expense.amount.toFixed(2)}</TableCell>
-                                <TableCell className="py-4">{expense.category}</TableCell>
-                                <TableCell className="py-4">{expense.subcategory}</TableCell>
-                                <TableCell className="py-4">{expense.description}</TableCell>
-                                <TableCell className="py-4">
-                                    <div className="flex space-x-2">
+                                <TableCell className="py-4 text-center border border-gray-700">{formatDate(expense.date)}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">${expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">{expense.category}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">{expense.subcategory}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">{expense.description}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">
+                                    <div className="flex justify-center space-x-2">
                                         <Button
                                             onClick={() => onEdit(expense)}
-                                            className="bg-neon-blue text-white hover:bg-white hover:text-neon-blue transition-colors duration-200"
+                                            className="bg-neon-blue text-white hover:bg-white hover:text-black transition-colors duration-200"
                                         >
                                             <Edit2Icon className="w-4 h-4 mr-1" />
                                             Edit
@@ -113,7 +113,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                                         <Button
                                             onClick={() => onDelete(expense._id)}
                                             variant="destructive"
-                                            className="bg-red-600 text-white hover:bg-white hover:text-red-600 transition-colors duration-200"
+                                            className="bg-purple-1000 text-white hover:bg-white hover:text-red-600 transition-colors duration-200"
                                         >
                                             <TrashIcon className="w-4 h-4 mr-1" />
                                             Delete
@@ -128,19 +128,24 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
             <div className="md:hidden space-y-4">
                 {sortedExpenses.map((expense) => (
                     <Card key={expense._id} className="bg-gray-800 text-white border-gray-700">
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold text-neon-blue">
+                        <CardHeader className="border-b border-gray-700">
+                            <CardTitle className="text-lg font-semibold text-neon-blue text-center">
                                 {formatDate(expense.date)} - ${expense.amount.toFixed(2)}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <p><span className="font-semibold">Category:</span> {expense.category}</p>
-                            <p><span className="font-semibold">Subcategory:</span> {expense.subcategory}</p>
-                            <p><span className="font-semibold">Description:</span> {expense.description}</p>
-                            <div className="mt-4 flex space-x-2">
+                        <CardContent className="pt-4">
+                            <div className="grid grid-cols-2 gap-2 text-center">
+                                <p className="font-semibold border-b border-r border-gray-700 pb-2">Category:</p>
+                                <p className="border-b border-gray-700 pb-2">{expense.category}</p>
+                                <p className="font-semibold border-b border-r border-gray-700 pb-2">Subcategory:</p>
+                                <p className="border-b border-gray-700 pb-2">{expense.subcategory}</p>
+                                <p className="font-semibold border-r border-gray-700 pb-2">Description:</p>
+                                <p className="pb-2">{expense.description}</p>
+                            </div>
+                            <div className="mt-4 flex justify-center space-x-2">
                                 <Button
                                     onClick={() => onEdit(expense)}
-                                    className="bg-neon-blue text-white hover:bg-white hover:text-neon-blue transition-colors duration-200"
+                                    className="bg-neon-blue text-white hover:bg-white hover:text-black transition-colors duration-200"
                                 >
                                     <Edit2Icon className="w-4 h-4 mr-1" />
                                     Edit
