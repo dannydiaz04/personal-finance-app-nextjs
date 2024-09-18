@@ -20,7 +20,7 @@ export default function Page() {
     // If not authenticated, show a login form or a welcome message
     return (
         <div>
-            <h1>{`Authentication state ${isAuthenticated}`}</h1>
+            {/* <h1>{`Authentication state ${isAuthenticated}`}</h1> */}
             <Login />
         </div>
     );
