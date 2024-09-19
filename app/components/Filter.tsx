@@ -1,8 +1,4 @@
-"use client"
-
-import { useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface FilterProps {
   options: string[]
@@ -11,32 +7,21 @@ interface FilterProps {
 }
 
 export function Filter({ options, onFilterChange, title }: FilterProps) {
-  const [selectedValue, setSelectedValue] = useState<string>(options[0])
-
-  const handleValueChange = (value: string) => {
-    setSelectedValue(value)
-    onFilterChange(value)
-  }
-
   return (
-    <Card className="w-full bg-gray-800 text-white">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Select onValueChange={handleValueChange} defaultValue={selectedValue}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select an option" />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </CardContent>
-    </Card>
+    <div className="w-full">
+      <h2 className="text-xl font-bold mb-4">{title}</h2>
+      <Select onValueChange={onFilterChange} defaultValue={options[0]}>
+        <SelectTrigger className="w-full bg-blue-700 text-white border-blue-600">
+          <SelectValue placeholder="Select a category" />
+        </SelectTrigger>
+        <SelectContent className="bg-blue-700 text-white border-blue-600">
+          {options.map((option) => (
+            <SelectItem key={option} value={option} className="hover:bg-blue-600">
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }

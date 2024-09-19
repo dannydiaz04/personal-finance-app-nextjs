@@ -15,10 +15,6 @@ interface Expense {
   description: string
 }
 
-interface DashboardProps {
-  expenses: Expense[]
-}
-
 export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All")
   const [categories, setCategories] = useState<Category[]>([])
@@ -33,12 +29,12 @@ export default function Dashboard() {
 
   const fetchExpenses = async () => {
     try {
-        const response = await fetch('/api/expenses')
-        if (!response.ok) throw new Error('Failed to fetch expenses')
-            const data = await response.json()
-        setExpenses(data)
+      const response = await fetch('/api/expenses')
+      if (!response.ok) throw new Error('Failed to fetch expenses')
+      const data = await response.json()
+      setExpenses(data)
     } catch (error) {
-        console.error('Error fetching expenses', error)
+      console.error('Error fetching expenses', error)
     }
   }
 
@@ -64,12 +60,10 @@ export default function Dashboard() {
       return acc
     }, {} as Record<string, number>)
 
-    return Object.entries(groupedData).map(([date, amount]) => ({ date, amount }))
+    return Object.entries(groupedData)
+      .map(([date, amount]) => ({ date, amount }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // Sort by date
   }, [filteredExpenses])
-
-  useEffect(() => {
-    fetchCategories()
-  }, [])
 
   const fetchCategories = async () => {
     try {
@@ -83,21 +77,25 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8 space-y-8">
+    <div className="min-h-screen bg-blue-900 text-white p-8 space-y-8">
       <h1 className="text-3xl font-bold mb-8">Expense Dashboard</h1>
       
       <div className="grid gap-8 md:grid-cols-2">
-        <Filter
-          options={uniqueCategories}
-          onFilterChange={setSelectedCategory}
-          title="Filter by Category"
-        />
-        <LineChart
-          data={chartData}
-          xKey="date"
-          yKey="amount"
-          title="Expenses Over Time"
-        />
+        <div className="bg-blue-800 rounded-lg p-4">
+          <Filter
+            options={uniqueCategories}
+            onFilterChange={setSelectedCategory}
+            title="Filter by Category"
+          />
+        </div>
+        <div className="bg-blue-800 rounded-lg p-4">
+          <LineChart
+            data={chartData}
+            xKey="date"
+            yKey="amount"
+            title="Expenses Over Time"
+          />
+        </div>
       </div>
     </div>
   )
