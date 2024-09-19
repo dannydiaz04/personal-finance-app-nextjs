@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useSession } from 'next-auth/react'
 import { LineChart } from "@/app/components/LineChart"
+import { ScatterPlot } from "@/app/components/ScatterPlot"
 import { Filter } from "@/app/components/Filter"
 import { Category } from '@/types/category'
 
@@ -94,6 +95,14 @@ export default function Dashboard() {
             xKey="date"
             yKey="amount"
             title="Expenses Over Time"
+          />
+        </div>
+        <div className="bg-blue-800 rounded-lg p-4">
+          <ScatterPlot
+            data={chartData}
+            xKey="date"
+            yKey="amount"
+            title="Individual Expenses Over Time"
           />
         </div>
       </div>

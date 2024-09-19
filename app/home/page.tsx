@@ -67,10 +67,10 @@ const Home = () => {
                             {greeting} {emoji}
                         </h1>
                         <p className="text-xl md:text-2xl text-gray-300">
-                            Hello, financial mastermind {session?.user?.first_name || ''}
+                            Hello, financial mastermind {session?.user?.first_name || 'User'}!
                         </p>
                         <p className="text-md text-gray-400">
-                            {session?.user?.first_name} {session?.user?.last_name}
+                            {session?.user?.first_name || ''} {session?.user?.last_name || ''}
                         </p>
                     </div>
 

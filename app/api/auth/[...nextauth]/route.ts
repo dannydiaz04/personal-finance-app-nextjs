@@ -4,6 +4,8 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from 'bcrypt'
 import dbConnect from '../../../lib/dbConnect'
 import User from '../../../models/User'
+import { Session } from "next-auth"
+import { JWT } from "next-auth/jwt"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -72,13 +74,15 @@ export const authOptions: NextAuthOptions = {
 	callbacks: {
 		async jwt({ token, user }) {
 			if (user) {
-				token.user = user;
+				token.first_name = user.first_name;
+				token.last_name = user.last_name;
 			}
 			return token;
 		},
-		async session({ session, token }) {
-			if (token.user) {
-				session.user = token.user as any;
+		async session({ session, token }: { session: Session; token: JWT }) {
+			if (session.user) {
+				session.user.first_name = token.first_name as string;
+				session.user.last_name = token.last_name as string;
 			}
 			return session;
 		},
