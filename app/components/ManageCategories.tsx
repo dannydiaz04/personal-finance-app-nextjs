@@ -52,14 +52,15 @@ const CategoryManagement = () => {
         e.preventDefault();
         if (!selectedCategory) return;
         try {
-            const response = await fetch(`/api/categories/${selectedCategory}/subcategories`, {
+            const response = await fetch('/api/categories', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newSubCategory }),
+                body: JSON.stringify({ categoryId: selectedCategory, name: newSubCategory }),
             });
-            if (!response.ok) throw new Error('Failed to add subcategory');
-            setNewSubCategory('');
+            if (!response.ok) throw new Error('Failed to add subcategory');;
             fetchCategories();
+            setNewSubCategory('');
+            setSelectedCategory('');
         } catch (error) {
             console.error('Error adding subcategory:', error);
         }
@@ -67,7 +68,7 @@ const CategoryManagement = () => {
 
     const handleDeleteCategory = async (categoryId: string) => {
         try {
-            const response = await fetch(`/api/categories/${categoryId}`, {
+            const response = await fetch(`/api/categories?categoryId=${categoryId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete category');
@@ -79,7 +80,7 @@ const CategoryManagement = () => {
 
     const handleDeleteSubcategory = async (categoryId: string, subcategoryId: string) => {
         try {
-            const response = await fetch(`/api/categories/${categoryId}/subcategories/${subcategoryId}`, {
+            const response = await fetch(`/api/categories?categoryId=${categoryId}&subcategoryId=${subcategoryId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete subcategory');
@@ -127,7 +128,7 @@ const CategoryManagement = () => {
                                 </SelectTrigger>
                                 <SelectContent className="bg-gray-700 text-white">
                                     {categories.map((category) => (
-                                        <SelectItem key={category._id} value={category._id}>{category.name}</SelectItem>
+                                        <SelectItem key={category._id.toString()} value={category._id.toString()}>{category.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -155,17 +156,17 @@ const CategoryManagement = () => {
                 <CardContent>
                     <ul className="space-y-4">
                         {categories.map((category) => (
-                            <li key={category._id} className="bg-gray-700 p-4 rounded-lg">
+                            <li key={category._id.toString()} className="bg-gray-700 p-4 rounded-lg">
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-semibold text-white">{category.name}</span>
-                                    <Button onClick={() => handleDeleteCategory(category._id)} variant="destructive" size="sm">Delete</Button>
+                                    <Button onClick={() => handleDeleteCategory(category._id.toString())} variant="destructive" size="sm">Delete</Button>
                                 </div>
                                 <ul className="mt-2 space-y-2">
                                     {Array.isArray(category.subCategories) && category.subCategories.length > 0 ? (
                                         category.subCategories.map((subcategory) => (
-                                            <li key={subcategory._id} className="flex justify-between items-center bg-gray-600 p-2 rounded">
+                                            <li key={subcategory._id.toString()} className="flex justify-between items-center bg-gray-600 p-2 rounded">
                                                 <span className="text-white">{subcategory.name}</span>
-                                                <Button onClick={() => handleDeleteSubcategory(category._id, subcategory._id)} variant="destructive" size="sm">Delete</Button>
+                                                <Button onClick={() => handleDeleteSubcategory(category._id.toString(), subcategory._id.toString())} variant="destructive" size="sm">Delete</Button>
                                             </li>
                                         ))
                                     ) : (

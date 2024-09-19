@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 
-const CategorySchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+const SubCategorySchema = new mongoose.Schema({
   name: { type: String, required: true },
-  subCategories: [{ name: { type: String, required: true } }]
+});
+
+const CategorySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  subCategories: [SubCategorySchema]
 });
 
 export const Category = mongoose.models.Category || mongoose.model('Category', CategorySchema);
