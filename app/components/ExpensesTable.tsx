@@ -1,239 +1,168 @@
-'use client';
+import React, { useState } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Edit2Icon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 
-import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { Category } from '@/types/category';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+interface Expense {
+    _id: string;
+    date: string;
+    amount: number;
+    category: string;
+    subcategory: string;
+    description: string;
+}
 
-const CategoryManagement = () => {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [newCategory, setNewCategory] = useState('');
-    const [newSubCategory, setNewSubCategory] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
-    const [deletingSubcategory, setDeletingSubcategory] = useState<{categoryId: string, subcategoryId: string} | null>(null);
-    
-    const { data: session } = useSession();
+interface ExpensesTableProps {
+    expenses: Expense[];
+    onEdit: (expense: Expense) => void;
+    onDelete: (id: string) => void;
+}
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
+type SortKey = keyof Omit<Expense, '_id'>;
+type SortOrder = 'asc' | 'desc';
 
-    const fetchCategories = async () => {
-        try {
-            const response = await fetch('/api/categories');
-            if (!response.ok) throw new Error('Failed to fetch categories');
-            const data = await response.json();
-            setCategories(data);
-        } catch (error) {
-            console.error('Error fetching categories', error);
+export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTableProps) {
+    const [sortKey, setSortKey] = useState<SortKey>('date');
+    const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0]; // This will format the date as YYYY-MM-DD
+    };
+
+    const sortedExpenses = [...expenses].sort((a, b) => {
+        if (a[sortKey] < b[sortKey]) return sortOrder === 'asc' ? -1 : 1;
+        if (a[sortKey] > b[sortKey]) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const handleSort = (key: SortKey) => {
+        if (key === sortKey) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortOrder('asc');
         }
     };
 
-    const handleAddCategory = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const response = await fetch('/api/categories', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newCategory }),
-            });
-            if (!response.ok) throw new Error('Failed to add category');
-            setNewCategory('');
-            fetchCategories();
-        } catch (error) {
-            console.error('Error adding category', error);
-        }
-    };
-
-    const handleAddSubcategory = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedCategory) return;
-        try {
-            const response = await fetch('/api/categories', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ categoryId: selectedCategory, name: newSubCategory }),
-            });
-            if (!response.ok) throw new Error('Failed to add subcategory');
-            fetchCategories();
-            setNewSubCategory('');
-            setSelectedCategory('');
-        } catch (error) {
-            console.error('Error adding subcategory:', error);
-        }
-    };
-
-    const handleDeleteCategory = async () => {
-        if (!deletingCategory) return;
-        try {
-            const response = await fetch(`/api/categories?categoryId=${deletingCategory}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) throw new Error('Failed to delete category');
-            fetchCategories();
-        } catch (error) {
-            console.error('Error deleting category: ', error);
-        } finally {
-            setDeletingCategory(null);
-        }
-    };
-
-    const handleDeleteSubcategory = async () => {
-        if (!deletingSubcategory) return;
-        try {
-            const response = await fetch(`/api/categories?categoryId=${deletingSubcategory.categoryId}&subcategoryId=${deletingSubcategory.subcategoryId}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) throw new Error('Failed to delete subcategory');
-            fetchCategories();
-        } catch (error) {
-            console.error('Error deleting subcategory:', error);
-        } finally {
-            setDeletingSubcategory(null);
-        }
+    const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
+        if (columnKey !== sortKey) return null;
+        return sortOrder === 'asc' ? <ChevronUpIcon className="w-4 h-4 inline-block ml-1" /> : <ChevronDownIcon className="w-4 h-4 inline-block ml-1" />;
     };
 
     return (
-        <div className="space-y-8">
-            <Card className="bg-gray-800 bg-opacity-50 shadow-2xl backdrop-blur-sm border border-white">
-                <CardHeader>
-                    <CardTitle className="text-xl font-bold text-white">Add New Category</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleAddCategory} className="space-y-4">
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="newCategory" className="text-gray-300">Category Name</Label>
-                            <Input
-                                id="newCategory"
-                                type="text"
-                                value={newCategory}
-                                onChange={(e) => setNewCategory(e.target.value)}
-                                placeholder="New Category"
-                                className="bg-gray-700 text-white border-gray-600"
-                            />
-                        </div>
-                        <Button type="submit" className="bg-blue-500 text-white hover:bg-blue-600">Add Category</Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800 bg-opacity-50 shadow-2xl backdrop-blur-sm border border-white">
-                <CardHeader>
-                    <CardTitle className="text-xl font-bold text-white">Add New Subcategory</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleAddSubcategory} className="space-y-4">
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="categorySelect" className="text-gray-300">Select Category</Label>
-                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                                <SelectTrigger className="bg-gray-700 text-white border-gray-600">
-                                    <SelectValue placeholder="Select a category" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-gray-700 text-white">
-                                    {categories.map((category) => (
-                                        <SelectItem key={category._id.toString()} value={category._id.toString()}>{category.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="newSubCategory" className="text-gray-300">Subcategory Name</Label>
-                            <Input
-                                id="newSubCategory"
-                                type="text"
-                                value={newSubCategory}
-                                onChange={(e) => setNewSubCategory(e.target.value)}
-                                placeholder="New Subcategory"
-                                className="bg-gray-700 text-white border-gray-600"
-                            />
-                        </div>
-                        <Button type="submit" className="bg-blue-500 text-white hover:bg-blue-600">Add Subcategory</Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800 bg-opacity-50 shadow-2xl backdrop-blur-sm border border-white">
-                <CardHeader>
-                    <CardTitle className="text-xl font-bold text-white">Current Categories and Subcategories</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-4">
-                        {categories.map((category) => (
-                            <li key={category._id.toString()} className="bg-gray-700 p-4 rounded-lg">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-lg font-semibold text-white">{category.name}</span>
-                                    <Button onClick={() => setDeletingCategory(category._id.toString())} variant="destructive" size="sm">Delete</Button>
-                                </div>
-                                <ul className="mt-2 space-y-2">
-                                    {Array.isArray(category.subCategories) && category.subCategories.length > 0 ? (
-                                        category.subCategories.map((subcategory) => (
-                                            <li key={subcategory._id.toString()} className="flex justify-between items-center bg-gray-600 p-2 rounded">
-                                                <span className="text-white">{subcategory.name}</span>
-                                                <Button onClick={() => setDeletingSubcategory({categoryId: category._id.toString(), subcategoryId: subcategory._id.toString()})} variant="destructive" size="sm">Delete</Button>
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="text-gray-400">No subcategories for this category. Add some!</li>
-                                    )}
-                                </ul>
-                            </li>
+        <div className="w-full">
+            <style jsx global>{`
+                :root {
+                    --neon-blue: #00f3ff;
+                }
+            `}</style>
+            <div className="mb-4 md:hidden">
+                <Select onValueChange={(value) => handleSort(value as SortKey)}>
+                    <SelectTrigger className="w-full bg-gray-800 text-white border-gray-700">
+                        <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 text-white border-gray-700">
+                        {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
+                            <SelectItem key={key} value={key} className="hover:bg-gray-700">
+                                {key.charAt(0).toUpperCase() + key.slice(1)}
+                            </SelectItem>
                         ))}
-                    </ul>
-                </CardContent>
-            </Card>
-
-            <AlertDialog open={!!deletingCategory} onOpenChange={() => setDeletingCategory(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the category
-                            and all associated records.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteCategory}>
-                            Yes, delete category
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            <AlertDialog open={!!deletingSubcategory} onOpenChange={() => setDeletingSubcategory(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the subcategory
-                            and all associated records.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteSubcategory}>
-                            Yes, delete subcategory
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="hidden md:block overflow-auto">
+                <Table className="w-full border-collapse bg-black text-white">
+                    <TableHeader>
+                        <TableRow className="border-b border-neon-blue">
+                            {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
+                                <TableHead 
+                                    key={key}
+                                    className="text-neon-blue font-bold cursor-pointer text-center border border-gray-700"
+                                    onClick={() => handleSort(key)}
+                                >
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    <SortIcon columnKey={key} />
+                                </TableHead>
+                            ))}
+                            <TableHead className="text-neon-blue font-bold text-center border border-gray-700">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {sortedExpenses.map((expense, index) => (
+                            <TableRow 
+                                key={expense._id} 
+                                className={`border-b border-gray-800 ${index % 2 === 0 ? 'bg-gray-900' : 'bg-black'} hover:bg-gray-800 transition-colors duration-200`}
+                            >
+                                <TableCell className="py-4 text-center border border-gray-700">{formatDate(expense.date)}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">${expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">{expense.category}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">{expense.subcategory}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">{expense.description}</TableCell>
+                                <TableCell className="py-4 text-center border border-gray-700">
+                                    <div className="flex justify-center space-x-2">
+                                        <Button
+                                            onClick={() => onEdit(expense)}
+                                            className="bg-neon-blue text-white hover:bg-white hover:text-black transition-colors duration-200"
+                                        >
+                                            <Edit2Icon className="w-4 h-4 mr-1" />
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            onClick={() => onDelete(expense._id)}
+                                            variant="destructive"
+                                            className="bg-opacity-50 bg-purple-1000 text-white hover:bg-white hover:text-red-600 transition-colors duration-200"
+                                        >
+                                            <TrashIcon className="w-4 h-4 mr-1" />
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+            <div className="md:hidden space-y-4">
+                {sortedExpenses.map((expense) => (
+                    <Card key={expense._id} className="bg-gray-800 text-white border-gray-700">
+                        <CardHeader className="border-b border-gray-700">
+                            <CardTitle className="text-lg font-semibold text-neon-blue text-center">
+                                {formatDate(expense.date)} - ${expense.amount.toFixed(2)}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                            <div className="grid grid-cols-2 gap-2 text-center">
+                                <p className="font-semibold border-b border-r border-gray-700 pb-2">Category:</p>
+                                <p className="border-b border-gray-700 pb-2">{expense.category}</p>
+                                <p className="font-semibold border-b border-r border-gray-700 pb-2">Subcategory:</p>
+                                <p className="border-b border-gray-700 pb-2">{expense.subcategory}</p>
+                                <p className="font-semibold border-r border-gray-700 pb-2">Description:</p>
+                                <p className="pb-2">{expense.description}</p>
+                            </div>
+                            <div className="mt-4 flex justify-center space-x-2">
+                                <Button
+                                    onClick={() => onEdit(expense)}
+                                    className="bg-neon-blue text-white hover:bg-black hover:text-black transition-colors duration-200"
+                                >
+                                    <Edit2Icon className="w-4 h-4 mr-1" />
+                                    Edit
+                                </Button>
+                                <Button
+                                    onClick={() => onDelete(expense._id)}
+                                    variant="destructive"
+                                    className="bg-red-600 text-white hover:bg-black hover:text-red-600 transition-colors duration-200"
+                                >
+                                    <TrashIcon className="w-4 h-4 mr-1" />
+                                    Delete
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
         </div>
     );
-};
-
-export default CategoryManagement;
+}

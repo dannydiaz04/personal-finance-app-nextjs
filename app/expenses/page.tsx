@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import ExpensesTable from '../components/ExpensesTable';
-import Navbar from '../components/Navbar';
+import ExpensesTable from '@/app/components/ExpensesTable'
+import Navbar from '@/app/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

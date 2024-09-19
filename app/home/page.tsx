@@ -33,9 +33,7 @@ const Home = () => {
             "Ready to Outsmart Your Wallet?",
             "Financial Wizardry Awaits!",
             "Time to Make Your Money Dance!",
-            "Let's Turn Pennies into Prosperity!",
-            "This is different",
-            "This is craziness!"
+            "Let's Turn Pennies into Prosperity!"
         ];
         const emojis = ['💰', '🚀', '🧙‍♂️', '💃', '✨'];
         
@@ -60,12 +58,12 @@ const Home = () => {
     }
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800">
             <Navbar />
-            <div className="pt-20 text-white p-8"> {/* Increased padding-top to ensure content is below Navbar */}
+            <div className="pt-16 text-white p-8"> {/* Add padding-top to account for fixed navbar */}
                 <div className="max-w-4xl mx-auto space-y-8">
                     <div className="text-center space-y-4">
-                        <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-red-300 animate-pulse">
+                        <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 animate-pulse">
                             {greeting} {emoji}
                         </h1>
                         <p className="text-xl md:text-2xl text-gray-300">
