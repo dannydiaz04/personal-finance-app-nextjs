@@ -17,13 +17,13 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
       const amount = isNaN(Number(data[yKey])) ? 0 : Number(data[yKey]);
       return (
         <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600">
-          <p className="text-white font-bold mb-2">{`Date: ${new Date(data[xKey]).toLocaleDateString()}`}</p>
-          <p className="text-cyan-300">{`Amount: $${Number(amount).toFixed(2)}`}</p>
+          <p className="text-gray-300 font-bold mb-2"><span className='text-white'>{`Date: ${new Date(data[xKey]).toLocaleDateString()}`}</span></p>
+          <p className="text-gray-300"><span className='text-white'>{`Amount: $${Number(amount).toFixed(2)}`}</span></p>
           {data.category && (
-            <p className="text-green-300">{`Category: ${data.category}`}</p>
+            <p className="text-gray-300"><span className='text-white'>{`Category: ${data.category}`}</span></p>
           )}
           {data.description && (
-            <p className="text-yellow-300">{`Description: ${data.description}`}</p>
+            <p className="text-gray-300"><span className='text-white'>{`Description: ${data.description}`}</span></p>
           )}
         </div>
       )
