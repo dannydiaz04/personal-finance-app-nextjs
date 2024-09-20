@@ -6,6 +6,8 @@ import { LineChart } from "@/app/components/LineChart"
 import { ScatterPlot } from "@/app/components/ScatterPlot"
 import { Filter } from "@/app/components/Filter"
 import { Category } from '@/types/category'
+import Navbar from "@/app/components/Navbar"
+import ExpenseDashboard from "@/app/components/ExpenseDashboard"
 
 interface Expense {
   _id: string
@@ -57,7 +59,7 @@ export default function Dashboard() {
       if (!acc[date]) {
         acc[date] = 0
       }
-      acc[date] += expense.amount
+      acc[date] += Number(expense.amount)
       return acc
     }, {} as Record<string, number>)
 
@@ -65,6 +67,15 @@ export default function Dashboard() {
       .map(([date, amount]) => ({ date, amount }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // Sort by date
   }, [filteredExpenses])
+
+  const scatterData = useMemo(() => {
+    return filteredExpenses.map(expense => ({
+      ...expense,
+      date: new Date(expense.date).getTime(),
+      amount: isNaN(Number(expense.amount)) ? 0 : Number(expense.amount)
+    }));
+  }, [filteredExpenses]);
+
 
   const fetchCategories = async () => {
     try {
@@ -78,32 +89,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-900 text-white p-8 space-y-8">
-      <h1 className="text-3xl font-bold mb-8">Expense Dashboard</h1>
-      
-      <div className="grid gap-8 md:grid-cols-2">
-        <div className="bg-blue-800 rounded-lg p-4">
-          <Filter
-            options={uniqueCategories}
-            onFilterChange={setSelectedCategory}
-            title="Filter by Category"
-          />
-        </div>
-        <div className="bg-blue-800 rounded-lg p-4">
-          <LineChart
-            data={chartData}
-            xKey="date"
-            yKey="amount"
-            title="Expenses Over Time"
-          />
-        </div>
-        <div className="bg-blue-800 rounded-lg p-4">
-          <ScatterPlot
-            data={chartData}
-            xKey="date"
-            yKey="amount"
-            title="Individual Expenses Over Time"
-          />
+    <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800">
+    <Navbar />
+      <div className="min-h-screen bg-blue-900 text-white p-8 pt-20 space-y-8">
+        <div>
+          <ExpenseDashboard />
         </div>
       </div>
     </div>

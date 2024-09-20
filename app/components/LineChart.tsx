@@ -10,15 +10,17 @@ interface LineChartProps {
 export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const value = payload[0].value;
+      const amount = isNaN(Number(value)) ? 0 : Number(value);
       return (
         <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600">
-          <p className="text-white font-bold mb-2">{`Date: ${label}`}</p>
-          <p className="text-cyan-300">{`Amount: $${payload[0].value.toFixed(2)}`}</p>
+          <p className="text-gray-300 font-bold mb-2">Date: <span className="text-white">{new Date(label).toLocaleDateString()}</span></p>
+          <p className="text-gray-300">Amount: <span className="text-white">${amount.toFixed(2)}</span></p>
           {payload[0].payload.category && (
-            <p className="text-green-300">{`Category: ${payload[0].payload.category}`}</p>
+            <p className="text-gray-300">Category: <span className="text-white">{payload[0].payload.category}</span></p>
           )}
           {payload[0].payload.count && (
-            <p className="text-yellow-300">{`Number of Expenses: ${payload[0].payload.count}`}</p>
+            <p className="text-gray-300">Number of Expenses: <span className="text-white">{Number(payload[0].payload.count) || 0}</span></p>
           )}
         </div>
       )
@@ -33,6 +35,7 @@ export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
         <RechartsLineChart data={data} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-chart`}>
           <XAxis
             dataKey={xKey}
+            tickFormatter={(unixTime) => new Date(unixTime).toLocaleDateString()}
             stroke="#cbd5e1"
             fontSize={12}
             tickLine={false}

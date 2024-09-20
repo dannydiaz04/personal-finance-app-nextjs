@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import dbConnect from '../../../lib/dbConnect'
 import User from '../../../models/User'
 import { Session } from "next-auth"
@@ -63,6 +63,8 @@ export const authOptions: NextAuthOptions = {
             id: user._id.toString(),
             email: user.email,
             name: user.username,
+            ...(user.first_name && { first_name: user.first_name }),
+            ...(user.last_name && { last_name: user.last_name }),
           };
         } catch (error) {
           console.error('Error in authorize function:', error);
@@ -74,15 +76,21 @@ export const authOptions: NextAuthOptions = {
 	callbacks: {
 		async jwt({ token, user }) {
 			if (user) {
-				token.first_name = user.first_name;
-				token.last_name = user.last_name;
+				token.id = user.id;
+				token.email = user.email;
+				token.name = user.name;
+				if ('first_name' in user) token.first_name = user.first_name;
+				if ('last_name' in user) token.last_name = user.last_name;
 			}
 			return token;
 		},
 		async session({ session, token }: { session: Session; token: JWT }) {
 			if (session.user) {
-				session.user.first_name = token.first_name as string;
-				session.user.last_name = token.last_name as string;
+				session.user.id = token.id as string;
+				session.user.email = token.email as string;
+				session.user.name = token.name as string;
+				if ('first_name' in token) session.user.first_name = token.first_name as string;
+				if ('last_name' in token) session.user.last_name = token.last_name as string;
 			}
 			return session;
 		},

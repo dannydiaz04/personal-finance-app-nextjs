@@ -14,10 +14,11 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      const amount = isNaN(Number(data[yKey])) ? 0 : Number(data[yKey]);
       return (
         <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600">
           <p className="text-white font-bold mb-2">{`Date: ${new Date(data[xKey]).toLocaleDateString()}`}</p>
-          <p className="text-cyan-300">{`Amount: $${Number(data[yKey]).toFixed(2)}`}</p>
+          <p className="text-cyan-300">{`Amount: $${Number(amount).toFixed(2)}`}</p>
           {data.category && (
             <p className="text-green-300">{`Category: ${data.category}`}</p>
           )}
@@ -29,12 +30,13 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
     }
     return null
   }
-
+console.log('validData', validData)
   return (
     <div className="w-full">
       <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-scatter`}>{title}</h2>
       <ResponsiveContainer width="100%" height={300}>
         <RechartsScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-scatter`}>
+          {console.log('xKey', xKey)}
           <XAxis 
             dataKey={xKey} 
             name="Date" 
@@ -43,10 +45,11 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
             domain={['dataMin', 'dataMax']}
             stroke="#cbd5e1"
           />
+          {console.log('yKey', yKey)}
           <YAxis 
             dataKey={yKey} 
             name="Amount" 
-            tickFormatter={(value) => `$${Number(value).toFixed(2)}`}
+            tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
             stroke="#cbd5e1"
           />
           <Tooltip content={<CustomTooltip />} />
