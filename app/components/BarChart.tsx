@@ -11,15 +11,17 @@ interface BarChartProps {
 interface CustomTooltipProps {
     active?: boolean;
     payload?: Array<{ payload: { category: string; cumulativeAmount: number } }>;
+    xKey: string;
+    yKey: string;
 }
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, xKey, yKey }: CustomTooltipProps & { xKey: string, yKey: string }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
             <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600 bg-opacity-90 shadow-lg">
-                <p className="text-gray-300 font bold mb-2"><span className="text-white">{`Category: ${data.category}`}</span></p>
-                <p className="text-gray-300"><span className="text-white">{`Total Amount: $${payload[0].value}`}</span></p> {/* the value is the value of the dictionary { category: cumulativeAmount } the */}
+                <p className="text-gray-300 font bold mb-2"><span className="text-white">{`Category: ${data[xKey]}`}</span></p>
+                <p className="text-gray-300"><span className="text-white">{`Total Amount: $${data[yKey] !== undefined ? data[yKey] : 'N/A'}`}</span></p>
             </div>
         )
     }
@@ -51,7 +53,7 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
     const maxValue = Math.max(...processedData.map(item => Number(item[yKey])));
     return (
         <div className="w-full">
-        <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-bar`}>{title}</h2>
+        <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-bar`}>{title} For The Month of -- Insert Month Here --</h2>
         <ResponsiveContainer width="100%" height={300}>
           <RechartsBarChart data={processedData} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-bar`}>
             <XAxis 
@@ -63,15 +65,15 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
               stroke="#cbd5e1"
               domain={[0, maxValue]} // Set the domain to the max value to ensure that the bars are not cut off
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip xKey={xKey} yKey={yKey} />} />
             <Bar dataKey={yKey} fill="#22d3ee">
                 <LabelList 
                     position="center" 
                     dataKey={yKey} 
                     formatter={(value: number) => `$${Number(value).toFixed(2)}`} 
                     fill="black" 
-                    fontSize={11} // Adjust font size if necessary
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    fontSize={16} // Adjust font size if necessary
+                    style={{ fontFamily: 'sans-serif' }}
                 />
             </Bar>
           </RechartsBarChart>

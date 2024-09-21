@@ -14,7 +14,8 @@ const CategoryManagement = () => {
     const [newCategory, setNewCategory] = useState('');
     const [newSubCategory, setNewSubCategory] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
-    
+    const [categoryTargets, setCategoryTargets] = useState<{ [key: string]: number }>({});
+
     const { data: session } = useSession();
 
     useEffect(() => {
@@ -27,6 +28,16 @@ const CategoryManagement = () => {
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             setCategories(data);
+
+            // Initialize category targets
+            if (data.length > 0) {
+                const defaultTarget = 100 / data.length;
+                const initialTargets: { [key: string]: number } = {};
+                data.forEach(category => {
+                    initialTargets[category._id.toString()] = defaultTarget;
+                });
+                setCategoryTargets(initialTargets);
+            }
         } catch (error) {
             console.error('Error fetching categories', error);
         }
@@ -57,7 +68,7 @@ const CategoryManagement = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ categoryId: selectedCategory, name: newSubCategory }),
             });
-            if (!response.ok) throw new Error('Failed to add subcategory');;
+            if (!response.ok) throw new Error('Failed to add subcategory');
             fetchCategories();
             setNewSubCategory('');
             setSelectedCategory('');
@@ -87,6 +98,51 @@ const CategoryManagement = () => {
             fetchCategories();
         } catch (error) {
             console.error('Error deleting subcategory:', error);
+        }
+    };
+
+    const handleTargetChange = (categoryId: string, newTarget: number) => {
+        if (isNaN(newTarget) || newTarget < 0 || newTarget > 100) {
+            alert("Please enter a valid percentage between 0 and 100. The total of all categories must equal 100%");
+            return;
+        }
+
+        const newTargets = { ...categoryTargets };
+        newTargets[categoryId] = newTarget;
+
+        const otherCategoryIds = Object.keys(newTargets).filter(id => id !== categoryId);
+        const numOthers = otherCategoryIds.length;
+
+        if (numOthers === 0) {
+            // Only one category, set target to 100%
+            newTargets[categoryId] = 100;
+        } else {
+            const totalOtherTargets = 100 - newTarget;
+            const newOtherTarget = totalOtherTargets / numOthers;
+            otherCategoryIds.forEach(id => {
+                newTargets[id] = newOtherTarget;
+            });
+        }
+
+        setCategoryTargets(newTargets);
+    };
+
+    const handleSubmitTargets = async () => {
+        try {
+            const targetData = Object.keys(categoryTargets).map(id => ({
+                categoryId: id,
+                target: categoryTargets[id],
+            }));
+
+            const response = await fetch('/api/categories/targets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ targets: targetData }),
+            });
+            if (!response.ok) throw new Error('Failed to update category targets');
+            fetchCategories();
+        } catch (error) {
+            console.error('Error updating category targets', error);
         }
     };
 
@@ -159,7 +215,22 @@ const CategoryManagement = () => {
                             <li key={category._id.toString()} className="bg-gray-700 p-4 rounded-lg">
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-semibold text-white">{category.name}</span>
-                                    <Button onClick={() => handleDeleteCategory(category._id.toString())} variant="destructive" size="sm">Delete</Button>
+                                    <div className="flex items-center space-x-2">
+                                        <Input
+                                            type="number"
+                                            value={categoryTargets[category._id.toString()] || 0}
+                                            onChange={(e) => {
+                                                const newValue = parseFloat(e.target.value);
+                                                handleTargetChange(category._id.toString(), newValue);
+                                            }}
+                                            min="0"
+                                            max="100"
+                                            step="0.01"
+                                            className="w-20 bg-gray-600 text-white border-gray-500"
+                                        />
+                                        <span className="text-white">%</span>
+                                        <Button onClick={() => handleDeleteCategory(category._id.toString())} variant="destructive" size="sm">Delete</Button>
+                                    </div>
                                 </div>
                                 <ul className="mt-2 space-y-2">
                                     {Array.isArray(category.subCategories) && category.subCategories.length > 0 ? (
@@ -176,6 +247,9 @@ const CategoryManagement = () => {
                             </li>
                         ))}
                     </ul>
+                    <div className="mt-4">
+                        <Button onClick={handleSubmitTargets} className="bg-blue-500 text-white hover:bg-blue-600">Submit Targets</Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>

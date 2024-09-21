@@ -10,4 +10,5 @@ export interface Category {
     name: string;
     userId: Types.ObjectId;
     subCategories: SubCategory[];
+    target: number;
 }

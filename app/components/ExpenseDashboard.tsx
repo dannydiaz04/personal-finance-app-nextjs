@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { LineChart } from "@/app/components/LineChart";
-import { ScatterPlot } from "@/app/components/ScatterPlot";
-import { Filter } from "@/app/components/Filter";
-import { Category } from '@/types/category';
-import { isNaN } from 'lodash';
-import { BarChart } from '@/app/components/BarChart';
+import { useState, useMemo, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { LineChart } from "@/app/components/LineChart"
+import { ScatterPlot } from "@/app/components/ScatterPlot"
+import { Filter } from "@/app/components/Filter"
+import { Category } from '@/types/category'
+import { isNaN } from 'lodash'
+import { BarChart } from '@/app/components/BarChart'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Expense {
   _id: string
@@ -18,12 +20,11 @@ interface Expense {
   description: string
 }
 
-// validator function to check if the amount is a number
 function validateExpenseAmount(expense: Expense): Expense {
   return {
     ...expense,
     amount: isNaN(Number(expense.amount)) ? 0 : Number(expense.amount),
-    date: new Date(expense.date).toISOString().split('T')[0], // Ensure date is a valid date
+    date: new Date(expense.date).toISOString().split('T')[0],
   }
 }
 
@@ -55,6 +56,10 @@ export default function Dashboard() {
     return ["All", ...uniqueCategories]
   }, [expenses])
 
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+  };
+
   const filteredExpenses = useMemo(() => {
     if (selectedCategory === "All") {
       return expenses
@@ -68,7 +73,6 @@ export default function Dashboard() {
       if (!acc[date]) {
         acc[date] = { amount: 0, categories: new Set(), count: 0 };
       }
-      // Ensure amount is a number
       const amount = Number(expense.amount);
       acc[date].amount += isNaN(amount) ? 0 : amount;
       acc[date].categories.add(expense.category);
@@ -78,8 +82,8 @@ export default function Dashboard() {
 
     return Object.entries(groupedData)
       .map(([date, data]) => ({
-        date,
-        amount: Number(data.amount.toFixed(2)), // Round to 2 decimal places
+        date : new Date(date),
+        amount: Number(data.amount.toFixed(2)),
         category: Array.from(data.categories).join(', '),
         count: Number(data.count)
       }))
@@ -115,43 +119,66 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-900 text-white p-8 space-y-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Expense Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 p-8 space-y-8">
+      <h1 className="text-4xl font-bold mb-8 text-center text-primary">Expense Dashboard</h1>
       
       <div className="flex flex-col gap-8">
-        <div className="bg-black rounded-lg p-4 shadow-2xl font-bold w-1/4">
-          <Filter
-            options={uniqueCategories}
-            onFilterChange={setSelectedCategory}
-            title="Filter by Category"
-          />
-        </div>
+        {/* <Card className="w-full md:w-1/3 mx-auto">
+          <CardHeader>
+            <CardTitle>Filter by Category</CardTitle>
+          </CardHeader> 
+          <CardContent> */}
+            <div className="w-1/4 mx-auto">
+              <Filter
+                title="Filters"
+                options={uniqueCategories}
+                onFilterChange={handleCategoryChange}
+              />
+            </div>
+          {/* </CardContent>
+        </Card> */}
         
         <div className="grid gap-8 md:grid-cols-2">
-          <div className="bg-black rounded-lg p-4 shadow-2xl font-bold">
-            <BarChart
-              data={barData}
-              xKey="category"
-              yKey="amount"
-              title="Expenses by Category"
-            />
-          </div>
-          <div className="bg-black rounded-lg p-4 shadow-2xl font-bold">
-            <LineChart
-              data={chartData}
-              xKey="date"
-              yKey="amount"
-              title="Expenses Over Time"
-            />
-          </div>
-          <div className="bg-black rounded-lg p-4 shadow-2xl font-bold md:col-span-2">
-            <ScatterPlot
-              data={scatterData}
-              xKey="date"
-              yKey="amount"
-              title="Individual Expense Distribution"
-            />
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Expenses by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BarChart
+                title="Expenses by Category"
+                data={barData}
+                xKey="category"
+                yKey="amount"
+              />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Expenses Over Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LineChart
+                title="Expenses Over Time"
+                data={chartData}
+                xKey="date"
+                yKey="amount"
+                currentDate="date"
+              />
+            </CardContent>
+          </Card>
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Individual Expense Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScatterPlot
+                title="Individual Expense Distribution"
+                data={scatterData}
+                xKey="date"
+                yKey="amount"
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

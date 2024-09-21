@@ -16,7 +16,7 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
       const data = payload[0].payload;
       const amount = isNaN(Number(data[yKey])) ? 0 : Number(data[yKey]);
       return (
-        <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600">
+        <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600 opacity-80">
           <p className="text-gray-300 font-bold mb-2"><span className='text-white'>{`Date: ${new Date(data[xKey]).toLocaleDateString()}`}</span></p>
           <p className="text-gray-300"><span className='text-white'>{`Amount: $${Number(amount).toFixed(2)}`}</span></p>
           {data.category && (
