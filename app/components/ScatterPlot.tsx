@@ -33,7 +33,7 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
 console.log('validData', validData)
   return (
     <div className="w-full">
-      <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-scatter`}>{title}</h2>
+      {/* <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-scatter`}>{title}</h2> */}
       <ResponsiveContainer width="100%" height={300}>
         <RechartsScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-scatter`}>
           {console.log('xKey', xKey)}

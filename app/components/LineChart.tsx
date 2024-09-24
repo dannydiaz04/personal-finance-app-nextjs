@@ -52,7 +52,7 @@ export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
   const maxValue = Math.max(...processedData.map(item => Number(item[yKey])));
   return (
     <div className="w-full">
-      <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-chart`}>{title}</h2>
+      {/* <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-chart`}>{title}</h2> */}
       <ResponsiveContainer width="100%" height={300}>
         <RechartsLineChart data={processedData} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-chart`}>
           <XAxis
