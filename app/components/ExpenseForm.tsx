@@ -106,7 +106,7 @@ const ExpenseForm = () => {
     const selectedCategory = categories.find(cat => cat._id === formData.category);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 p-4">
+        <div className="min-h-screen flex items-center justify-center p-4">
             <div className="max-w-md w-full space-y-8 bg-gray-800 bg-opacity-50 p-8 rounded-xl shadow-2xl backdrop-blur-sm">
                 <div className="text-center">
                     <h2 className="mt-6 text-3xl font-extrabold text-white">Add Expense</h2>

@@ -63,21 +63,24 @@ const Home = () => {
             <div className="pt-16 text-white p-8"> {/* Add padding-top to account for fixed navbar */}
                 <div className="max-w-4xl mx-auto space-y-8">
                     <div className="text-center space-y-4">
-                        <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 animate-pulse">
+                        <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 animate-pulse mb-12">
                             {greeting} {emoji}
                         </h1>
-                        <p className="text-xl md:text-2xl text-gray-300">
-                            Hello, financial mastermind {session?.user?.first_name || 'User'}!
-                        </p>
-                        <p className="text-md text-gray-400">
-                            {session?.user?.first_name || ''} {session?.user?.last_name || ''}
-                        </p>
+                        <div className="text-center space-y-4">
+                            <p className="text-3xl md:text-4xl text-gray-300 mt-28">
+                                Hello, {session?.user?.first_name || 'User'}, you financial mastermind, you!
+                                <ExpenseForm />
+                            </p>
+                        </div>
+                        <div className="text-center space-y-4">
+                            
+                        </div>
                     </div>
 
-                    <div className="bg-gray-800 bg-opacity-50 p-8 rounded-xl shadow-2xl backdrop-blur-sm border border-white">
-                        <h2 className="text-2xl font-bold mb-4 text-center text-blue-300">Add New Expense</h2>
-                        <ExpenseForm />
-                    </div>
+                    {/* <div className="bg-gray-800 bg-opacity-50 p-8 rounded-xl shadow-2xl backdrop-blur-sm border border-white"> */}
+                        {/* <h2 className="text-2xl font-bold mb-4 text-center text-blue-300">Add New Expense</h2> */}
+                        {/* <ExpenseForm /> */}
+                    {/* </div> */}
                 </div>
             </div>
         </div>
