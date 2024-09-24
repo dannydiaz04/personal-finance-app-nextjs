@@ -58,6 +58,14 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                 :root {
                     --neon-blue: #00f3ff;
                 }
+                .custom-table {
+                    border-collapse: separate;
+                    border-spacing: 0 0.1rem;
+                }
+                .custom-table th,
+                .custom-table td {
+                    border: none;
+                }
             `}</style>
             <div className="mb-4 md:hidden">
                 <Select onValueChange={(value) => handleSort(value as SortKey)}>
@@ -74,34 +82,34 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                 </Select>
             </div>
             <div className="hidden md:block overflow-auto">
-                <Table className="w-full border-collapse bg-black text-white">
-                    <TableHeader>
-                        <TableRow className="border-b border-black">
+                <Table className="w-full custom-table">
+                    <TableHeader className="bg-green-300">
+                        <TableRow className="bg-transparent">
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-neon-blue font-bold cursor-pointer text-center border border-black"
+                                    className="text-black hover:text-white transition-colors duration-200 font-bold cursor-pointer text-center"
                                     onClick={() => handleSort(key)}
                                 >
                                     <span className="font-semibold">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                                     <SortIcon columnKey={key} />
                                 </TableHead>
                             ))}
-                            <TableHead className="text-neon-blue font-bold text-center border border-black">Actions</TableHead>
+                            <TableHead className="text-black hover:text-white transition-colors duration-200 font-bold text-center">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {sortedExpenses.map((expense) => (
                             <TableRow 
                                 key={expense._id} 
-                                className="border-b border-gray-800 bg-gray-900 hover:bg-gray-800 transition-colors duration-200"
+                                className="hover:bg-green-300 transition-colors duration-200 group"
                             >
-                                <TableCell className="py-4 text-center border border-gray-900 font-medium">{formatDate(expense.date)}</TableCell>
-                                <TableCell className="py-4 text-center border border-gray-900 font-medium">${expense.amount.toFixed(2)}</TableCell>
-                                <TableCell className="py-4 text-center border border-gray-900">{expense.category}</TableCell>
-                                <TableCell className="py-4 text-center border border-gray-900">{expense.subcategory}</TableCell>
-                                <TableCell className="py-4 text-center border border-gray-900">{expense.description}</TableCell>
-                                <TableCell className="py-4 text-center border border-gray-900">
+                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{formatDate(expense.date)}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">${expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{expense.category}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{expense.subcategory}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{expense.description}</TableCell>
+                                <TableCell className="py-4 text-center">
                                     <div className="flex justify-center space-x-2">
                                         <Button
                                             onClick={() => onEdit(expense)}
@@ -127,7 +135,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
             </div>
             <div className="md:hidden space-y-4">
                 {sortedExpenses.map((expense) => (
-                    <Card key={expense._id} className="bg-gray-900 text-white border-gray-700">
+                    <Card key={expense._id} className="text-white">
                         <CardHeader className="border-b border-gray-700">
                             <CardTitle className="text-lg font-bold text-neon-blue text-center">
                                 {formatDate(expense.date)} - ${expense.amount.toFixed(2)}

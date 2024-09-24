@@ -30,15 +30,16 @@ const CategoryManagement = () => {
             const data = await response.json();
             setCategories(data);
 
-            // Initialize category targets
-            if (data.length > 0) {
-                const defaultTarget = 100 / data.length;
-                const initialTargets: { [key: string]: number } = {};
-                data.forEach(category => {
-                    initialTargets[category._id.toString()] = defaultTarget;
-                });
-                setCategoryTargets(initialTargets);
-            }
+            // Initialize category targets with existing targets
+            const initialTargets: { [key: string]: number } = {};
+            let total = 0;
+            data.forEach((category: Category) => {
+                const target = category.target || 0;
+                initialTargets[category._id.toString()] = target;
+                total += target;
+            });
+            setCategoryTargets(initialTargets);
+            setTotalPercentage(total);
         } catch (error) {
             console.error('Error fetching categories', error);
         }
@@ -205,11 +206,11 @@ const CategoryManagement = () => {
             <Card className="bg-gray-800 bg-opacity-50 shadow-2xl backdrop-blur-sm border border-white">
                 <CardHeader>
                     <CardTitle className="text-xl font-bold text-white">Current Categories and Subcategories</CardTitle>
-                </CardHeader>Updates disabled by your organization
+                </CardHeader>
                 <CardContent>
                     <div className={`mb-4 p-2 rounded ${totalPercentage > 100 ? 'bg-red-600' : 'bg-gray-700'}`}>
                         <p className="text-white">
-                            Current total: {totalPercentage.toFixed(2)}%
+                            Current total: <span className="font-bold text-green-300">{totalPercentage.toFixed(0)}%</span>
                             {totalPercentage > 100 && " (Exceeds 100%)"}
                         </p>
                     </div>
@@ -219,7 +220,7 @@ const CategoryManagement = () => {
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-semibold text-white">{category.name}</span>
                                     <div className="flex items-center space-x-2">
-                                        <span className="text-white">Current Target: <span className="font-bold text-green-300">{category.target.toFixed(0) || '0.00'}%</span></span>
+                                        <span className="text-white">Current: <span className="text-green-300">{category.target?.toFixed(0) || '0'}%</span></span>
                                         <Input
                                             type="number"
                                             value={categoryTargets[category._id.toString()] || 0}
@@ -229,7 +230,7 @@ const CategoryManagement = () => {
                                             }}
                                             min="0"
                                             max="100"
-                                            step="0.01"
+                                            step="1"
                                             className="w-20 bg-gray-600 text-white border-gray-500"
                                         />
                                         <span className="text-white">%</span>
