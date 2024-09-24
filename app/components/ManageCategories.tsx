@@ -15,6 +15,7 @@ const CategoryManagement = () => {
     const [newSubCategory, setNewSubCategory] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [categoryTargets, setCategoryTargets] = useState<{ [key: string]: number }>({});
+    const [totalPercentage, setTotalPercentage] = useState(0);
 
     const { data: session } = useSession();
 
@@ -102,32 +103,26 @@ const CategoryManagement = () => {
     };
 
     const handleTargetChange = (categoryId: string, newTarget: number) => {
-        if (isNaN(newTarget) || newTarget < 0 || newTarget > 100) {
-            alert("Please enter a valid percentage between 0 and 100. The total of all categories must equal 100%");
+        if (newTarget < 0 || newTarget > 100) {
+            alert("Please enter a valid percentage between 0 and 100.");
             return;
         }
 
         const newTargets = { ...categoryTargets };
-        newTargets[categoryId] = newTarget;
-
-        const otherCategoryIds = Object.keys(newTargets).filter(id => id !== categoryId);
-        const numOthers = otherCategoryIds.length;
-
-        if (numOthers === 0) {
-            // Only one category, set target to 100%
-            newTargets[categoryId] = 100;
-        } else {
-            const totalOtherTargets = 100 - newTarget;
-            const newOtherTarget = totalOtherTargets / numOthers;
-            otherCategoryIds.forEach(id => {
-                newTargets[id] = newOtherTarget;
-            });
-        }
-
+        newTargets[categoryId] = Number(newTarget);
         setCategoryTargets(newTargets);
+
+        // Calculate total percentage
+        const total = Object.values(newTargets).reduce((sum, value) => sum + value, 0);
+        setTotalPercentage(total);
     };
 
     const handleSubmitTargets = async () => {
+        if (totalPercentage !== 100) {
+            alert(`The total percentage must equal 100%. Current total: ${totalPercentage.toFixed(2)}%`);
+            return;
+        }
+
         try {
             const targetData = Object.keys(categoryTargets).map(id => ({
                 categoryId: id,
@@ -140,9 +135,11 @@ const CategoryManagement = () => {
                 body: JSON.stringify({ targets: targetData }),
             });
             if (!response.ok) throw new Error('Failed to update category targets');
+            alert('Category targets updated successfully!');
             fetchCategories();
         } catch (error) {
             console.error('Error updating category targets', error);
+            alert('Failed to update category targets. Please try again.');
         }
     };
 
@@ -208,14 +205,21 @@ const CategoryManagement = () => {
             <Card className="bg-gray-800 bg-opacity-50 shadow-2xl backdrop-blur-sm border border-white">
                 <CardHeader>
                     <CardTitle className="text-xl font-bold text-white">Current Categories and Subcategories</CardTitle>
-                </CardHeader>
+                </CardHeader>Updates disabled by your organization
                 <CardContent>
+                    <div className={`mb-4 p-2 rounded ${totalPercentage > 100 ? 'bg-red-600' : 'bg-gray-700'}`}>
+                        <p className="text-white">
+                            Current total: {totalPercentage.toFixed(2)}%
+                            {totalPercentage > 100 && " (Exceeds 100%)"}
+                        </p>
+                    </div>
                     <ul className="space-y-4">
                         {categories.map((category) => (
                             <li key={category._id.toString()} className="bg-gray-700 p-4 rounded-lg">
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-semibold text-white">{category.name}</span>
                                     <div className="flex items-center space-x-2">
+                                        <span className="text-white">Current Target: <span className="font-bold text-green-300">{category.target.toFixed(0) || '0.00'}%</span></span>
                                         <Input
                                             type="number"
                                             value={categoryTargets[category._id.toString()] || 0}
