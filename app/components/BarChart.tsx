@@ -48,9 +48,9 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
                 } // the yKey is the totalAmount. To set the yKey, we explicitly set it to totalAmount. To stay consistent with the data, we use the xKey to set the category explicitly
             })
     }, [data, xKey, yKey]);
-    console.log('processedData from the BarChart component', processedData)
-    console.log('yKey from BarChart component', yKey)
+    
     const maxValue = Math.max(...processedData.map(item => Number(item[yKey])));
+    
     return (
         <div className="w-full">
         {/* <h2 className="text-xl font-bold mb-4" id={`${title.replace(/\s+/g, '-').toLowerCase()}-bar`}>{title} For The Month of -- Insert Month Here --</h2> */}
@@ -60,6 +60,7 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
               dataKey={xKey}
               fontSize={14}
               stroke="#86EFAC"
+              tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
             />
             <YAxis 
               tickFormatter={(value) => `$${Number(value).toFixed(2)}`} 
@@ -67,7 +68,10 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
               fontSize={14}
               domain={[0, maxValue]} // Set the domain to the max value to ensure that the bars are not cut off
             />
-            <Tooltip content={<CustomTooltip xKey={xKey} yKey={yKey} />} />
+            <Tooltip 
+                content={<CustomTooltip xKey={xKey} yKey={yKey} />} 
+                cursor={{ fill: 'transparent' }}
+            />
             <Bar dataKey={yKey} fill="#86EFAC">
                 <LabelList 
                     position="center" 

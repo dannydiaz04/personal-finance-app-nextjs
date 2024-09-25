@@ -19,23 +19,34 @@ interface ScatterPlotProps {
 export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
-  // Filter out any data points where the yKey (amount) is NaN
-  // and add a unique 'id' to each data point
+  // Convert xKey values to timestamps and filter out invalid data
   const validData = data
-    .filter((item) => !isNaN(item[yKey]))
-    .map((item, idx) => ({ ...item, id: idx }));
+    .filter(
+      (item) =>
+        !isNaN(item[yKey]) && !isNaN(new Date(item[xKey]).getTime())
+    )
+    .map((item) => {
+      const date = new Date(item[xKey]);
+      return {
+        ...item,
+        [xKey]: date.getTime(), // Convert date to timestamp
+      };
+    });
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const amount = isNaN(Number(data[yKey])) ? 0 : Number(data[yKey]);
+      const date = new Date(data[xKey]); // Convert timestamp back to Date
       return (
         <div className="bg-blue-800 p-4 rounded shadow-lg border border-blue-600 opacity-80">
           <p className="text-gray-300 font-bold mb-2">
-            <span className="text-white">{`Date: ${new Date(data[xKey]).toLocaleDateString()}`}</span>
+            <span className="text-white">{date.toLocaleDateString()}</span>
           </p>
           <p className="text-gray-300">
-            <span className="text-white">{`Amount: $${Number(amount).toFixed(2)}`}</span>
+            <span className="text-white">{`Amount: $${Number(
+              amount
+            ).toFixed(2)}`}</span>
           </p>
           {data.category && (
             <p className="text-gray-300">
@@ -70,7 +81,7 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
         style={{
           zIndex: isHovered ? 1000 : 1,
           cursor: 'pointer',
-          transition: 'all 4.6s ease',
+          transition: 'all 0.3s ease',
         }}
         onMouseEnter={() => setHoveredPoint(id)}
         onMouseLeave={() => setHoveredPoint(null)}
@@ -88,11 +99,19 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
           <XAxis
             dataKey={xKey}
             name="Date"
-            tickFormatter={(unixTime) => new Date(unixTime).toLocaleDateString()}
+            tickFormatter={(timestamp: number) => {
+              const date = new Date(timestamp);
+              return `${date.toLocaleString('default', {
+                month: 'short',
+              })}-${date.getFullYear()}`;
+            }}
             type="number"
-            fontSize={14}
             domain={['dataMin', 'dataMax']}
+            fontSize={14}
             stroke="#86EFAC"
+            strokeWidth={10}
+            tickLine={false}
+            axisLine={false}
           />
           <YAxis
             dataKey={yKey}
@@ -100,6 +119,8 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
             fontSize={14}
             tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
             stroke="#86EFAC"
+            tickLine={false}
+            axisLine={false}
           />
           <ZAxis type="number" range={[100, 100]} />
           <Tooltip content={<CustomTooltip />} />
