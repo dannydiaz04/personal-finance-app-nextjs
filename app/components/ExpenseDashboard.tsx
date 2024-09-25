@@ -41,7 +41,7 @@ export default function ExpenseDashboard() {
     fetchCategories()
     fetchExpenses()
     if (session?.user?.id) {
-      fetchCategoryRemainingAmounts(session.user.id)
+      fetchCategoryRemainingAmounts((session.user as any).id)
     }
   }, [session])
 
@@ -148,40 +148,22 @@ export default function ExpenseDashboard() {
             </div>
           {/* </CardContent>
         </Card> */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tank Card</CardTitle>
-            <CardContent>
-              <TankCard
-                userId={session?.user?.id || ''}
-                title={categoryRemainingAmounts[0]?.category || ''}
-                value={`$${categoryRemainingAmounts[0]?.remainingAmount?.toFixed(2) || ''}`}
-                subValue={`$${categoryRemainingAmounts[0]?.targetAmount?.toFixed(2) || ''}`}
-                subLabel="Target Amount"
-                data={[{ value: categoryRemainingAmounts[0]?.remainingAmount || 0 }]}
-                color={getRandomColor()}
-                fillPercentage={(categoryRemainingAmounts[0]?.remainingAmount / categoryRemainingAmounts[0]?.targetAmount) * 100}
-              />
-            </CardContent>
-          </CardHeader>
-        </Card>
-        
         <div className="grid gap-8 md:grid-cols-3">
           {categoryRemainingAmounts.map((category, index) => (
             <Card key={index}>
               <CardHeader>
-                <CardTitle>{category.category}</CardTitle>
+                <CardTitle>{category.category || 'Unknown Category'}</CardTitle>
               </CardHeader>
               <CardContent>
                 <TankCard
                   userId={session?.user?.id || ''}
-                  title={category.category}
-                  value={`$${category.remainingAmount.toFixed(2)}`}
-                  subValue={`$${category.targetAmount.toFixed(2)}`}
+                  title={category.category || 'Unknown Category'}
+                  value={`$${(category.remainingAmount || 0).toFixed(2)}`}
+                  subValue={`$${(category.targetAmount || 0).toFixed(2)}`}
                   subLabel="Target Amount"
-                  data={[{ value: category.remainingAmount }]}
+                  data={[{ value: category.remainingAmount || 0 }]}
                   color={getRandomColor()}
-                  fillPercentage={(category.remainingAmount / category.targetAmount) * 100}
+                  fillPercentage={calculateFillPercentage(category.remainingAmount, category.targetAmount)}
                 />
               </CardContent>
             </Card>
@@ -237,4 +219,11 @@ export default function ExpenseDashboard() {
 
 function getRandomColor() {
   return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`
+}
+
+function calculateFillPercentage(remainingAmount: number | null | undefined, targetAmount: number | null | undefined): number {
+  if (typeof remainingAmount !== 'number' || typeof targetAmount !== 'number' || targetAmount === 0) {
+    return 0;
+  }
+  return Math.min(100, Math.max(0, (remainingAmount / targetAmount) * 100));
 }
