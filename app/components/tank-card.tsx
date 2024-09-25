@@ -1,33 +1,91 @@
 import { Card, CardContent } from "@/components/ui/card"
+import { LineChart, Line } from 'recharts'
+import { useEffect, useState } from 'react'
+import { Expense } from '@/app/models/Expense'
 
-interface TankCardProps {
-  totalAmount: number
-  amountLeft: number
-  label: string
+interface DataPoint {
+  value: number
 }
 
-export default function TankCard({ totalAmount, amountLeft, label }: TankCardProps) {
-  const percentage = Math.round((amountLeft / totalAmount) * 100)
+interface MetricData {
+  title: string
+  value: string
+  subValue?: string
+  subLabel?: string
+  data: DataPoint[]
+  color: string
+  fillPercentage: number
+}
+
+interface MetricCardProps {
+  userId: string
+  title: string
+  value: string
+  subValue?: string
+  subLabel?: string
+  data: { value: number }[]
+  color: string
+  fillPercentage: number
+}
+
+function MetricCard({ userId, title, value, subValue, subLabel, data, color, fillPercentage }: MetricCardProps) {
+  const gradientId = `gradient-${title.replace(/\s+/g, '-').toLowerCase()}`
+  const maskId = `mask-${title.replace(/\s+/g, '-').toLowerCase()}`
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardContent className="p-6">
-        <h3 className="text-lg font-semibold mb-2">{label}</h3>
-        <div className="relative h-48 w-32 mx-auto border-4 border-blue-400 rounded-b-3xl overflow-hidden">
-          <div 
-            className="absolute bottom-0 left-0 right-0 bg-green-300 transition-all duration-500 ease-in-out"
-            style={{ height: `${percentage}%` }}
+    <Card className="w-full overflow-hidden">
+      <div className="relative h-full">
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id={gradientId} x1="0" x2="0" y1="1" y2="0">
+              <stop offset="0%" stopColor={color} />
+              <stop offset="100%" stopColor={`${color}99`} />
+            </linearGradient>
+            <mask id={maskId}>
+              <rect width="100%" height="100%" fill="white" />
+              <rect 
+                width="100%" 
+                height={`${100 - fillPercentage}%`} 
+                fill="black" 
+              />
+              <path 
+                d={`M0,${100 - fillPercentage} C150,${100 - fillPercentage - 10} 350,${100 - fillPercentage + 10} 500,${100 - fillPercentage} V100 H0 Z`}
+                fill="white"
+                className="animate-wave"
+              />
+              <path 
+                d={`M0,${100 - fillPercentage + 5} C200,${100 - fillPercentage - 15} 300,${100 - fillPercentage + 15} 500,${100 - fillPercentage - 5} V100 H0 Z`}
+                fill="white"
+                className="animate-wave-reverse"
+              />
+            </mask>
+          </defs>
+          <rect 
+            width="100%" 
+            height="100%" 
+            fill={`url(#${gradientId})`} 
+            mask={`url(#${maskId})`}
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-bold text-blue-600 bg-white bg-opacity-70 px-2 py-1 rounded">
-              {amountLeft}
-            </span>
+        </svg>
+        <CardContent className="relative z-10 p-6">
+          <h3 className="text-sm font-medium text-white/80 mb-2">{title}</h3>
+          <div className="flex justify-between items-end mb-4">
+            <div>
+              <p className="text-3xl font-bold text-white">{value}</p>
+              {subValue && subLabel && (
+                <p className="text-sm text-white/80">
+                  {subLabel}: {subValue}
+                </p>
+              )}
+            </div>
+            <LineChart width={100} height={40} data={data}>
+              <Line type="monotone" dataKey="value" stroke="white" strokeWidth={2} dot={false} />
+            </LineChart>
           </div>
-        </div>
-        <p className="text-center mt-4 text-sm text-gray-600">
-          {percentage}% remaining
-        </p>
-      </CardContent>
+        </CardContent>
+      </div>
     </Card>
   )
 }
+
+export default MetricCard

@@ -23,7 +23,7 @@ interface ExpensesTableProps {
 type SortKey = keyof Omit<Expense, '_id'>;
 type SortOrder = 'asc' | 'desc';
 
-export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTableProps) {
+export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense }: ExpensesTableProps) {
     const [sortKey, setSortKey] = useState<SortKey>('date');
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
@@ -53,83 +53,61 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
     };
 
     return (
-        <div className="w-full">
-            <style jsx global>{`
-                :root {
-                    --neon-blue: #00f3ff;
-                    --neon-pink: #ff00ff;
-                    --neon-green: #39ff14;
-                }
-                .custom-table {
-                    border-collapse: separate;
-                    border-spacing: 0 0.5rem;
-                }
-                .custom-table th,
-                .custom-table td {
-                    border: none;
-                }
-                .gradient-bg {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                }
-                .neon-text {
-                    text-shadow: 0 0 0px var(--neon-green), 0 0 0px var(--neon-green), 0 0 0px var(--neon-green);
-                }
-                .neon-border {
-                    box-shadow: 0 0 1px var(--neon-green), 0 0 1px var(--neon-green);
-                }
-                @keyframes pulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                    100% { transform: scale(1); }
-                }
-            `}</style>
-            <div className="mb-4 md:hidden">
-                <Select onValueChange={(value) => handleSort(value as SortKey)}>
-                    <SelectTrigger className="w-full bg-gray-800 text-white border-gray-700 font-medium neon-border">
-                        <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 text-white border-gray-700">
-                        {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
-                            <SelectItem key={key} value={key} className="hover:bg-gray-700 font-medium">
-                                {key.charAt(0).toUpperCase() + key.slice(1)}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+        <div className="w-full bg-[#0f1729] text-white p-4">
+            <div className="mb-4 flex justify-between items-center">
+                <div className="flex-1 max-w-sm">
+                    <Select onValueChange={(value) => handleSort(value as SortKey)}>
+                        <SelectTrigger className="w-full bg-[#1c2537] text-white border-gray-700">
+                            <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1c2537] text-white border-gray-700">
+                            {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
+                                <SelectItem key={key} value={key} className="hover:bg-[#2a3547]">
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <Button 
+                    className="bg-[#4f46e5] hover:bg-[#4338ca] text-white"
+                    onClick={() => onAddExpense()}>
+                    Add Expense
+                </Button>
             </div>
-            <div className="hidden md:block overflow-auto rounded-lg gradient-bg p-4 neon-border">
-                <Table className="w-full custom-table">
+            <div className="overflow-x-auto">
+                <Table className="w-full">
                     <TableHeader>
-                        <TableRow className="bg-transparent">
+                        <TableRow className="bg-[#1c2537] border-b border-gray-700">
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-neon-blue hover:text-neon-pink transition-colors duration-200 font-bold cursor-pointer text-center text-xl neon-text"
+                                    className="text-white font-semibold cursor-pointer py-3 px-4"
                                     onClick={() => handleSort(key)}
                                 >
-                                    <span className="font-semibold">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                                    <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                                     <SortIcon columnKey={key} />
                                 </TableHead>
                             ))}
-                            <TableHead className="text-neon-blue hover:text-neon-pink transition-colors duration-200 font-bold text-center text-xl neon-text">Actions</TableHead>
+                            <TableHead className="text-white font-semibold py-3 px-4">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sortedExpenses.map((expense) => (
+                        {sortedExpenses.map((expense, index) => (
                             <TableRow 
                                 key={expense._id} 
-                                className="bg-gray-800 bg-opacity-50 hover:bg-opacity-75 transition-all duration-200 group"
+                                className={`border-b border-gray-700 ${index % 2 === 0 ? 'bg-[#1c2537]' : 'bg-[#0f1729]'}`}
                             >
-                                <TableCell className="py-4 text-center font-medium text-lg text-white group-hover:text-neon-green">{formatDate(expense.date)}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-lg text-white group-hover:text-neon-green">${expense.amount.toFixed(2)}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-lg text-white group-hover:text-neon-green">{expense.category}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-lg text-white group-hover:text-neon-green">{expense.subcategory}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-lg text-white group-hover:text-neon-green">{expense.description}</TableCell>
-                                <TableCell className="py-4 text-center">
-                                    <div className="flex justify-center space-x-2">
+                                <TableCell className="py-3 px-4">{formatDate(expense.date)}</TableCell>
+                                <TableCell className="py-3 px-4">${expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="py-3 px-4">{expense.category}</TableCell>
+                                <TableCell className="py-3 px-4">{expense.subcategory}</TableCell>
+                                <TableCell className="py-3 px-4">{expense.description}</TableCell>
+                                <TableCell className="py-3 px-4">
+                                    <div className="flex space-x-2">
                                         <Button
                                             onClick={() => onEdit(expense)}
-                                            className="bg-neon-blue text-white hover:bg-white hover:text-black text-med transition-all duration-200 font-semibold neon-border"
+                                            className="bg-[#4f46e5] hover:bg-[#4338ca] text-white"
                                         >
                                             <Edit2Icon className="w-4 h-4 mr-1" />
                                             Edit
@@ -137,7 +115,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                                         <Button
                                             onClick={() => onDelete(expense._id)}
                                             variant="destructive"
-                                            className="bg-neon-pink text-white hover:bg-white hover:text-red-600 text-md transition-all duration-200 font-semibold neon-border"
+                                            className="bg-red-600 hover:bg-red-700 text-white"
                                         >
                                             <TrashIcon className="w-4 h-4 mr-1" />
                                             Delete
@@ -148,44 +126,6 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                         ))}
                     </TableBody>
                 </Table>
-            </div>
-            <div className="md:hidden space-y-4">
-                {sortedExpenses.map((expense) => (
-                    <Card key={expense._id} className="text-white bg-gray-800 overflow-hidden neon-border"> {/* for hover animation--- hover:animate-pulse */}
-                        <CardHeader className="border-b border-gray-700 bg-gradient-to-r from-neon-blue to-neon-pink">
-                            <CardTitle className="text-xl font-bold text-black text-center">
-                                {formatDate(expense.date)} - ${expense.amount.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-4 bg-gradient-to-b from-gray-800 to-gray-900">
-                            <div className="grid grid-cols-2 gap-2 text-center">
-                                <p className="font-semibold border-b border-r border-gray-700 pb-2 text-neon-green">Category:</p>
-                                <p className="border-b border-gray-700 pb-2">{expense.category}</p>
-                                <p className="font-semibold border-b border-r border-gray-700 pb-2 text-neon-green">Subcategory:</p>
-                                <p className="border-b border-gray-700 pb-2">{expense.subcategory}</p>
-                                <p className="font-semibold border-r border-gray-700 pb-2 text-neon-green">Description:</p>
-                                <p className="pb-2">{expense.description}</p>
-                            </div>
-                            <div className="mt-4 flex justify-center space-x-2">
-                                <Button
-                                    onClick={() => onEdit(expense)}
-                                    className="bg-neon-blue text-white hover:bg-white hover:text-black transition-all duration-600 font-semibold neon-border"
-                                >
-                                    <Edit2Icon className="w-4 h-4 mr-1" />
-                                    Edit
-                                </Button>
-                                <Button
-                                    onClick={() => onDelete(expense._id)}
-                                    variant="destructive"
-                                    className="bg-neon-pink text-white hover:bg-white hover:text-red-600 transition-all duration-600 font-semibold neon-border"
-                                >
-                                    <TrashIcon className="w-4 h-4 mr-1" />
-                                    Delete
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
             </div>
         </div>
     );

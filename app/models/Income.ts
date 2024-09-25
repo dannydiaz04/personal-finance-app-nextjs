@@ -4,6 +4,7 @@ import { Category } from './Category';
 interface ICategoryTarget {
     category: mongoose.Schema.Types.ObjectId;
     targetAmount: number;
+    remainingAmount: number; // Add this line
 }
 
 interface IIncome {
@@ -41,6 +42,10 @@ const IncomeSchema = new mongoose.Schema({
         targetAmount: {
             type: Number,
             required: true
+        },
+        remainingAmount: { // Add this field
+            type: Number,
+            required: true
         }
     }]
 }, {
@@ -53,7 +58,8 @@ IncomeSchema.pre('save', async function (next) {
         const categories = await Category.find({ userId: this.user_id });
         this.categories = categories.map(category => ({
             category: category._id,
-            targetAmount: this.amount * (category.target / 100)
+            targetAmount: this.amount * (category.target / 100),
+            remainingAmount: this.amount * (category.target / 100) // Initialize remainingAmount
         })) as any; // Type assertion to bypass type check
     }
     next();

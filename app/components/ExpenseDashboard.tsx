@@ -10,6 +10,7 @@ import { isNaN } from 'lodash'
 import { BarChart } from '@/app/components/BarChart'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import TankCard from './tank-card'
 
 interface Expense {
   _id: string
@@ -28,17 +29,21 @@ function validateExpenseAmount(expense: Expense): Expense {
   }
 }
 
-export default function Dashboard() {
+export default function ExpenseDashboard() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All")
   const [categories, setCategories] = useState<Category[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
+  const [categoryRemainingAmounts, setCategoryRemainingAmounts] = useState<any[]>([])
 
   const { data: session } = useSession()
 
   useEffect(() => {
     fetchCategories()
     fetchExpenses()
-  }, [])
+    if (session?.user?.id) {
+      fetchCategoryRemainingAmounts(session.user.id)
+    }
+  }, [session])
 
   const fetchExpenses = async () => {
     try {
@@ -118,16 +123,22 @@ export default function Dashboard() {
     }
   }
 
+  const fetchCategoryRemainingAmounts = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/expenses/category-remaining?userId=${userId}`)
+      if (!response.ok) throw new Error('Failed to fetch category remaining amounts')
+      const data = await response.json()
+      setCategoryRemainingAmounts(data)
+    } catch (error) {
+      console.error('Error fetching category remaining amounts', error)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 p-8 space-y-8">
       <h1 className="text-4xl font-bold mb-8 text-center text-primary">Expense Dashboard</h1>
       
       <div className="flex flex-col gap-8">
-        {/* <Card className="w-full md:w-1/3 mx-auto">
-          <CardHeader>
-            <CardTitle>Filter by Category</CardTitle>
-          </CardHeader> 
-          <CardContent> */}
             <div className="w-1/4 mx-auto">
               <Filter
                 title="Filters"
@@ -137,6 +148,45 @@ export default function Dashboard() {
             </div>
           {/* </CardContent>
         </Card> */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tank Card</CardTitle>
+            <CardContent>
+              <TankCard
+                userId={session?.user?.id || ''}
+                title={categoryRemainingAmounts[0]?.category || ''}
+                value={`$${categoryRemainingAmounts[0]?.remainingAmount?.toFixed(2) || ''}`}
+                subValue={`$${categoryRemainingAmounts[0]?.targetAmount?.toFixed(2) || ''}`}
+                subLabel="Target Amount"
+                data={[{ value: categoryRemainingAmounts[0]?.remainingAmount || 0 }]}
+                color={getRandomColor()}
+                fillPercentage={(categoryRemainingAmounts[0]?.remainingAmount / categoryRemainingAmounts[0]?.targetAmount) * 100}
+              />
+            </CardContent>
+          </CardHeader>
+        </Card>
+        
+        <div className="grid gap-8 md:grid-cols-3">
+          {categoryRemainingAmounts.map((category, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <CardTitle>{category.category}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TankCard
+                  userId={session?.user?.id || ''}
+                  title={category.category}
+                  value={`$${category.remainingAmount.toFixed(2)}`}
+                  subValue={`$${category.targetAmount.toFixed(2)}`}
+                  subLabel="Target Amount"
+                  data={[{ value: category.remainingAmount }]}
+                  color={getRandomColor()}
+                  fillPercentage={(category.remainingAmount / category.targetAmount) * 100}
+                />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
         
         <div className="grid gap-8 md:grid-cols-2">
           <Card>
@@ -183,4 +233,8 @@ export default function Dashboard() {
       </div>
     </div>
   )
+}
+
+function getRandomColor() {
+  return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`
 }

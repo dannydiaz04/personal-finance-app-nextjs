@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import ExpensesTable from '@/app/components/ExpensesTable'
+import ExpensesTable from '@/app/components/ExpensesTable';
+import ExpenseForm from '@/app/components/ExpenseForm';
 import Navbar from '@/app/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ interface CustomSession {
 export default function ExpensesPage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+    const [isAddingExpense, setIsAddingExpense] = useState(false);
     const { data: session, status } = useSession() as { data: CustomSession | null, status: string };
     const router = useRouter();
 
@@ -57,6 +59,11 @@ export default function ExpensesPage() {
     const handleEditExpense = (expense: Expense) => {
         setEditingExpense(expense);
     };
+    const handleAddExpense = () => {
+        setIsAddingExpense(true);
+    }
+
+    // Remove the handleAddSubmit function if it's not being used
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -137,10 +144,20 @@ export default function ExpensesPage() {
                                 expenses={expenses}
                                 onEdit={handleEditExpense}
                                 onDelete={handleDelete}
+                                onAddExpense={handleAddExpense}
                             />
                         </CardContent>
                     </Card>
-
+                    <Dialog open={isAddingExpense} onOpenChange={() => setIsAddingExpense(false)}>
+                        <DialogContent className="bg-gray-800 text-white">
+                            <DialogHeader>
+                                <DialogTitle className="text-blue-300">Add New Expense</DialogTitle>
+                            </DialogHeader>
+                            <div className="max-h-[600px] overflow-y-auto">
+                                <ExpenseForm />
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                     <Dialog open={!!editingExpense} onOpenChange={() => setEditingExpense(null)}>
                         <DialogContent className="bg-gray-800 text-white">
                             <DialogHeader>
