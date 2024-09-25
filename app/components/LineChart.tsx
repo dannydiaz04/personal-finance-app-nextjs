@@ -58,15 +58,15 @@ export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
           <XAxis
             dataKey="date"
             tickFormatter={(date) => `${date.toLocaleString('default', { month: 'short' })}-${date.getFullYear()}`}
-            stroke="#cbd5e1"
+            stroke="#86EFAC"
             strokeWidth={10}
-            fontSize={12}
+            fontSize={14}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            stroke="#cbd5e1"
-            fontSize={12}
+            stroke="#86EFAC"
+            fontSize={14}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value: number) => `$${Number(value).toFixed(2)}`}
@@ -76,7 +76,7 @@ export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
           <Line
             type="monotone"
             dataKey={yKey}
-            stroke="#22d3ee"
+            stroke="#86EFAC"
             strokeWidth={4}
             dot={false}
           />

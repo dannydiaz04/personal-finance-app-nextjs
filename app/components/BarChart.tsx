@@ -58,21 +58,23 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
           <RechartsBarChart data={processedData} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-bar`}>
             <XAxis 
               dataKey={xKey}
-              stroke="#cbd5e1"
+              fontSize={14}
+              stroke="#86EFAC"
             />
             <YAxis 
               tickFormatter={(value) => `$${Number(value).toFixed(2)}`} 
-              stroke="#cbd5e1"
+              stroke="#86EFAC"
+              fontSize={14}
               domain={[0, maxValue]} // Set the domain to the max value to ensure that the bars are not cut off
             />
             <Tooltip content={<CustomTooltip xKey={xKey} yKey={yKey} />} />
-            <Bar dataKey={yKey} fill="#22d3ee">
+            <Bar dataKey={yKey} fill="#86EFAC">
                 <LabelList 
                     position="center" 
                     dataKey={yKey} 
                     formatter={(value: number) => `$${Number(value).toFixed(2)}`} 
                     fill="black" 
-                    fontSize={16} // Adjust font size if necessary
+                    fontSize={14} // Adjust font size if necessary
                     style={{ fontFamily: 'sans-serif' }}
                 />
             </Bar>

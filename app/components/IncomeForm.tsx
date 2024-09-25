@@ -5,10 +5,8 @@ import { useSession } from 'next-auth/react';
 
 type FormData = {
     amount: string;
-    category: string;
-    subcategory: string;
-    date: string;
     description: string;
+    date: string;
 };
 
 type Category = {
@@ -17,13 +15,11 @@ type Category = {
     subCategories?: { _id: string; name: string; }[];
 };
 
-const ExpenseForm = () => {
+const IncomeForm = () => {
     const [formData, setFormData] = useState<FormData>({
         amount: '',
-        category: '',
-        subcategory: '',
-        date: '',
-        description: ''
+        description: '',
+        date: ''
     });
     const [categories, setCategories] = useState<Category[]>([]);
     const { data: session } = useSession();
@@ -44,7 +40,7 @@ const ExpenseForm = () => {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         if (name === 'amount') {
             // Remove non-numeric characters except for the decimal point
@@ -54,63 +50,53 @@ const ExpenseForm = () => {
             const formattedValue = parts[0] + (parts.length > 1 ? '.' + parts[1].slice(0, 2) : '');
             setFormData(prev => ({ ...prev, [name]: formattedValue }));
         } else {
-            setFormData(prev => ({
-                ...prev,
-                [name]: value,
-                ...(name === 'category' && { subcategory: '' })
-            }));
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!formData.category || !formData.subcategory) {
-            alert('Please select both a category and a subcategory');
-            return;
-        }
         try {
-            const selectedCategory = categories.find(cat => cat._id === formData.category);
-            const selectedSubcategory = selectedCategory?.subCategories?.find(sub => sub._id === formData.subcategory);
-            if (!selectedCategory || !selectedSubcategory) throw new Error('Invalid category or subcategory');
-
-            const expenseData = {
-                ...formData,
-                amount: parseFloat(formData.amount), // Convert to number
-                category: selectedCategory.name,
-                subcategory: selectedSubcategory.name
+            const incomeData = {
+                amount: parseFloat(formData.amount),
+                description: formData.description,
+                date: formData.date
             };
 
-            const res = await fetch('/api/expenses', {
+            const res = await fetch('/api/incomes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(expenseData),
+                body: JSON.stringify(incomeData),
             });
 
-            if (!res.ok) throw new Error('Failed to submit expense');
-            alert('Expense submitted successfully');
-            setFormData({ amount: '', category: '', subcategory: '', date: '', description: '' });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Failed to submit income');
+            }
+
+            const result = await res.json();
+            alert('Income submitted successfully');
+            setFormData({ amount: '', description: '', date: '' });
         } catch (error) {
-            console.error('Error submitting expense:', error);
-            alert('Error adding expense. Please try again.');
+            console.error('Error submitting income:', error);
+            alert('Error adding income. Please try again.');
         }
     };
 
     if (!session) return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 p-4">
             <div className="bg-gray-800 bg-opacity-50 p-8 rounded-xl shadow-2xl backdrop-blur-sm">
-                <p className="text-white text-center">Please sign in to add expenses.</p>
+                <p className="text-white text-center">Please sign in to add income.</p>
             </div>
         </div>
     );
-
-    const selectedCategory = categories.find(cat => cat._id === formData.category);
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-gray-800 bg-opacity-50 p-8 rounded-xl shadow-2xl backdrop-blur-sm flex flex-col">
                 <div className="text-center flex-grow-0">
-                    <h2 className="mt-6 text-3xl font-extrabold text-white">Add Expense</h2>
-                    <p className="mt-2 text-sm text-gray-300">Enter your expense details below</p>
+                    <h2 className="mt-6 text-3xl font-extrabold text-white">Add Income</h2>
+                    <p className="mt-2 text-sm text-gray-300">Enter your income details below</p>
                 </div>
                 <form onSubmit={handleSubmit} className="mt-8 space-y-6 flex-grow flex flex-col justify-between">
                     <div className="rounded-md shadow-sm -space-y-px flex-grow">
@@ -131,39 +117,6 @@ const ExpenseForm = () => {
                                 value={formData.amount}
                                 onChange={handleChange}
                             />
-                        </div>
-                        <div>
-                            <label htmlFor="category" className="sr-only">Category</label>
-                            <select
-                                id="category"
-                                name="category"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white focus:outline-none focus:ring-blue-400 focus:border-green-400 focus:z-10 sm:text-sm bg-gray-700 bg-opacity-50"
-                                value={formData.category}
-                                onChange={handleChange}
-                            >
-                                <option value="">Select Category</option>
-                                {categories.map(category => (
-                                    <option key={category._id} value={category._id}>{category.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="subcategory" className="sr-only">Subcategory</label>
-                            <select
-                                id="subcategory"
-                                name="subcategory"
-                                required
-                                disabled={!formData.category}
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white focus:outline-none focus:ring-blue-400 focus:border-green-400 focus:z-10 sm:text-sm bg-gray-700 bg-opacity-50"
-                                value={formData.subcategory}
-                                onChange={handleChange}
-                            >
-                                <option value="">Select Subcategory</option>
-                                {selectedCategory?.subCategories?.map(subcategory => (
-                                    <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
-                                ))}
-                            </select>
                         </div>
                         <div>
                             <label htmlFor="description" className="sr-only">Description</label>
@@ -196,7 +149,7 @@ const ExpenseForm = () => {
                             type="submit"
                             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-black bg-green-300 hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-400"
                         >
-                            Add Expense
+                            Add Income
                         </button>
                     </div>
                 </form>
@@ -205,4 +158,4 @@ const ExpenseForm = () => {
     );
 };
 
-export default ExpenseForm;
+export default IncomeForm;

@@ -163,7 +163,7 @@ const CategoryManagement = () => {
                                 className="bg-gray-700 text-white border-gray-600"
                             />
                         </div>
-                        <Button type="submit" className="bg-blue-500 text-white hover:bg-blue-600">Add Category</Button>
+                        <Button type="submit" className="bg-green-300 text-black hover:bg-green-400">Add Category</Button>
                     </form>
                 </CardContent>
             </Card>
@@ -198,7 +198,7 @@ const CategoryManagement = () => {
                                 className="bg-gray-700 text-white border-gray-600"
                             />
                         </div>
-                        <Button type="submit" className="bg-blue-500 text-white hover:bg-blue-600">Add Subcategory</Button>
+                        <Button type="submit" className="bg-green-300 text-black hover:bg-green-400 transition-colors duration-400">Add Subcategory</Button>
                     </form>
                 </CardContent>
             </Card>
