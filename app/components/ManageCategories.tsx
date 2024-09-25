@@ -210,7 +210,7 @@ const CategoryManagement = () => {
                 <CardContent>
                     <div className={`mb-4 p-2 rounded ${totalPercentage > 100 ? 'bg-red-600' : 'bg-gray-700'}`}>
                         <p className="text-white">
-                            Current total: <span className="font-bold text-green-300">{totalPercentage.toFixed(0)}%</span>
+                            Percentage Total: <span className="font-bold text-green-300">{totalPercentage.toFixed(0)}%</span>
                             {totalPercentage > 100 && " (Exceeds 100%)"}
                         </p>
                     </div>
@@ -220,7 +220,7 @@ const CategoryManagement = () => {
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-semibold text-white">{category.name}</span>
                                     <div className="flex items-center space-x-2">
-                                        <span className="text-white">Current: <span className="text-green-300">{category.target?.toFixed(0) || '0'}%</span></span>
+                                        <span className="text-white">Category Percentage: <span className="text-green-300">{category.target?.toFixed(0) || '0'}%</span></span>
                                         <Input
                                             type="number"
                                             value={categoryTargets[category._id.toString()] || 0}

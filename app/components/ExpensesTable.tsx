@@ -83,12 +83,12 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
             </div>
             <div className="hidden md:block overflow-auto">
                 <Table className="w-full custom-table">
-                    <TableHeader className="bg-green-300">
+                    <TableHeader className="">
                         <TableRow className="bg-transparent">
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-black hover:text-white transition-colors duration-200 font-bold cursor-pointer text-center"
+                                    className="text-white hover:text-white transition-colors duration-200 font-bold cursor-pointer text-center text-[1.125rem]"
                                     onClick={() => handleSort(key)}
                                 >
                                     <span className="font-semibold">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
@@ -102,13 +102,13 @@ export default function ExpensesTable({ expenses, onEdit, onDelete }: ExpensesTa
                         {sortedExpenses.map((expense) => (
                             <TableRow 
                                 key={expense._id} 
-                                className="hover:bg-green-300 transition-colors duration-200 group"
+                                className="hover:bg-green-300 transition-colors duration-200 group h-4" // Adjusted height for smaller rows
                             >
-                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{formatDate(expense.date)}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">${expense.amount.toFixed(2)}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{expense.category}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{expense.subcategory}</TableCell>
-                                <TableCell className="py-4 text-center font-medium text-white group-hover:text-black">{expense.description}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-[1.125rem] text-white group-hover:text-black">{formatDate(expense.date)}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-[1.125rem] text-white group-hover:text-black">${expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-[1.125rem] text-white group-hover:text-black">{expense.category}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-[1.125rem] text-white group-hover:text-black">{expense.subcategory}</TableCell>
+                                <TableCell className="py-4 text-center font-medium text-[1.125rem] text-white group-hover:text-black">{expense.description}</TableCell>
                                 <TableCell className="py-4 text-center">
                                     <div className="flex justify-center space-x-2">
                                         <Button
