@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { LineChart } from "@/app/components/LineChart"
 import { ScatterPlot } from "@/app/components/ScatterPlot"
@@ -9,8 +9,9 @@ import { Category } from '@/types/category'
 import { isNaN } from 'lodash'
 import { BarChart } from '@/app/components/BarChart'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import TankCard from './tank-card'
+import { Menu } from "lucide-react"
 
 interface Expense {
   _id: string
@@ -34,6 +35,8 @@ export default function ExpenseDashboard() {
   const [categories, setCategories] = useState<Category[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [categoryRemainingAmounts, setCategoryRemainingAmounts] = useState<any[]>([])
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [isFilterButtonVisible, setIsFilterButtonVisible] = useState(true)
 
   const { data: session } = useSession()
 
@@ -140,22 +143,63 @@ export default function ExpenseDashboard() {
     }
   }
 
-  // console.log('categoryRemainingAmounts from the ExpenseDashboard : ', categoryRemainingAmounts)
+  const toggleFilter = () => {
+    setIsFilterOpen(!isFilterOpen)
+    setIsFilterButtonVisible(false)
+  }
+
+  const handleScroll = useCallback(() => {
+    setIsFilterButtonVisible(false)
+  }, [])
+
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (!isFilterOpen && event.clientX <= 500) {
+      setIsFilterButtonVisible(true);
+    }
+  }, [isFilterOpen])
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [handleScroll, handleMouseMove])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 p-8 space-y-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 p-8 space-y-8 relative">
+      {!isFilterOpen && isFilterButtonVisible && (
+        <Button 
+          onClick={toggleFilter} 
+          className="fixed top-4 left-4 z-50 transition-opacity duration-300 ease-in-out opacity-0 hover:opacity-100"
+          variant="outline"
+        >
+          <Menu className="h-4 w-4 mr-2" />
+          Filters
+        </Button>
+      )}
+
+      <div 
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-800 p-4 transform transition-transform duration-300 ease-in-out ${
+          isFilterOpen ? 'translate-x-0' : '-translate-x-full'
+        } z-40`}
+      >
+        <h2 className="text-2xl font-bold mb-4">Filters</h2>
+        <Filter
+          title="Category"
+          options={uniqueCategories}
+          onFilterChange={handleCategoryChange}
+        />
+        <Button onClick={() => setIsFilterOpen(false)} className="mt-4">
+          Close Filters
+        </Button>
+      </div>
+
       <h1 className="text-4xl font-bold mb-8 text-center text-primary">Expense Dashboard</h1>
       
       <div className="flex flex-col gap-8">
-            <div className="w-1/4 mx-auto">
-              <Filter
-                title="Filters"
-                options={uniqueCategories}
-                onFilterChange={handleCategoryChange}
-              />
-            </div>
-          {/* </CardContent>
-        </Card> */}
         <div className="grid gap-8 md:grid-cols-3">
           {categoryRemainingAmounts.map((category, index) => (
             <Card key={index}>
@@ -226,9 +270,9 @@ export default function ExpenseDashboard() {
 }
 
 function getRandomColor() {
-  const blue = Math.floor(Math.random() * 128); // Random blue value (0-127 for pastel)
-  const green = Math.floor(Math.random() * 128); // Random green value (0-127 for pastel)
-  return `rgb(0, ${green + 127}, ${blue + 127})`; // Shift to pastel range (127-255)
+  const blue = Math.floor(Math.random() * 128);
+  const green = Math.floor(Math.random() * 128);
+  return `rgb(0, ${green + 127}, ${blue + 127})`;
 }
 
 function calculateFillPercentage(remainingAmount: number | null | undefined, targetAmount: number | null | undefined): number {
