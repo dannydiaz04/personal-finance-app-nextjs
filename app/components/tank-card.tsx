@@ -68,7 +68,7 @@ function MetricCard({ userId, title, value, subValue, subLabel, data, color, fil
           />
         </svg>
         <CardContent className="relative z-10 p-6">
-          <h3 className="text-sm font-medium text-white/80 mb-2">{title}</h3>
+          {/* <h3 className="text-md font-medium text-white/80 mb-2">{title}</h3> */}
           <div className="flex justify-between items-end mb-4">
             <div>
               <p className="text-3xl font-bold text-white">{value}</p>
@@ -79,7 +79,7 @@ function MetricCard({ userId, title, value, subValue, subLabel, data, color, fil
               )}
             </div>
             <LineChart width={100} height={40} data={data}>
-              <Line type="monotone" dataKey="value" stroke="white" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="value" stroke="black" strokeWidth={0} dot={false} />
             </LineChart>
           </div>
         </CardContent>

@@ -226,7 +226,9 @@ export default function ExpenseDashboard() {
 }
 
 function getRandomColor() {
-  return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`
+  const blue = Math.floor(Math.random() * 128); // Random blue value (0-127 for pastel)
+  const green = Math.floor(Math.random() * 128); // Random green value (0-127 for pastel)
+  return `rgb(0, ${green + 127}, ${blue + 127})`; // Shift to pastel range (127-255)
 }
 
 function calculateFillPercentage(remainingAmount: number | null | undefined, targetAmount: number | null | undefined): number {
