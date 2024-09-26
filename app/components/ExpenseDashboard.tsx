@@ -41,7 +41,10 @@ export default function ExpenseDashboard() {
     fetchCategories()
     fetchExpenses()
     if (session?.user?.id) {
+      console.log('ExpenseDashboard: Session user ID:', (session.user as any).id);
       fetchCategoryRemainingAmounts((session.user as any).id)
+    } else {
+      console.log('ExpenseDashboard: No user ID available in session');
     }
   }, [session])
 
@@ -124,15 +127,20 @@ export default function ExpenseDashboard() {
   }
 
   const fetchCategoryRemainingAmounts = async (userId: string) => {
+    console.log('ExpenseDashboard: Fetching category remaining amounts for user:', userId);
     try {
       const response = await fetch(`/api/expenses/category-remaining?userId=${userId}`)
+      console.log('ExpenseDashboard: Fetch response status:', response.status);
       if (!response.ok) throw new Error('Failed to fetch category remaining amounts')
       const data = await response.json()
+      console.log('ExpenseDashboard: Fetched category remaining amounts:', data);
       setCategoryRemainingAmounts(data)
     } catch (error) {
-      console.error('Error fetching category remaining amounts', error)
+      console.error('ExpenseDashboard: Error fetching category remaining amounts', error)
     }
   }
+
+  // console.log('categoryRemainingAmounts from the ExpenseDashboard : ', categoryRemainingAmounts)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 p-8 space-y-8">
@@ -156,7 +164,7 @@ export default function ExpenseDashboard() {
               </CardHeader>
               <CardContent>
                 <TankCard
-                  userId={session?.user?.id || ''}
+                  userId={(session?.user as any).id}
                   title={category.category || 'Unknown Category'}
                   value={`$${(category.remainingAmount || 0).toFixed(2)}`}
                   subValue={`$${(category.targetAmount || 0).toFixed(2)}`}
