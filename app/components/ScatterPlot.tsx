@@ -109,9 +109,9 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
             domain={['dataMin', 'dataMax']}
             fontSize={14}
             stroke="#86EFAC"
-            strokeWidth={10}
-            tickLine={false}
-            axisLine={false}
+            // strokeWidth={10}
+            tickLine={true}
+            axisLine={true}
           />
           <YAxis
             dataKey={yKey}
@@ -119,8 +119,8 @@ export function ScatterPlot({ data, xKey, yKey, title }: ScatterPlotProps) {
             fontSize={14}
             tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
             stroke="#86EFAC"
-            tickLine={false}
-            axisLine={false}
+            tickLine={true}
+            axisLine={true}
           />
           <ZAxis type="number" range={[100, 100]} />
           <Tooltip content={<CustomTooltip />} />

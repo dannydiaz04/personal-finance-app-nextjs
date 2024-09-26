@@ -1,21 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { LineChart, Line } from 'recharts'
-import { useEffect, useState } from 'react'
-import { Expense } from '@/app/models/Expense'
-
-interface DataPoint {
-  value: number
-}
-
-interface MetricData {
-  title: string
-  value: string
-  subValue?: string
-  subLabel?: string
-  data: DataPoint[]
-  color: string
-  fillPercentage: number
-}
 
 interface MetricCardProps {
   userId: string
@@ -28,7 +12,7 @@ interface MetricCardProps {
   fillPercentage: number
 }
 
-function MetricCard({ userId, title, value, subValue, subLabel, data, color, fillPercentage }: MetricCardProps) {
+function MetricCard({ title, value, subValue, subLabel, data, color, fillPercentage }: MetricCardProps) {
   const gradientId = `gradient-${title.replace(/\s+/g, '-').toLowerCase()}`
   const maskId = `mask-${title.replace(/\s+/g, '-').toLowerCase()}`
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Edit2Icon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 
@@ -78,18 +77,18 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
             <div className="overflow-x-auto">
                 <Table className="w-full">
                     <TableHeader>
-                        <TableRow className="bg-[#1c2537] border-b border-gray-700">
+                        <TableRow className="bg-green-300 opacity-90 hover:bg-green-300 border-b border-gray-700">
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-white font-semibold cursor-pointer py-3 px-4"
+                                    className="text-black font-semibold cursor-pointer py-3 px-4"
                                     onClick={() => handleSort(key)}
                                 >
                                     <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                                     <SortIcon columnKey={key} />
                                 </TableHead>
                             ))}
-                            <TableHead className="text-white font-semibold py-3 px-4">Actions</TableHead>
+                            <TableHead className="text-black font-semibold py-3 px-4">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -107,7 +106,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
                                     <div className="flex space-x-2">
                                         <Button
                                             onClick={() => onEdit(expense)}
-                                            className="bg-[#4f46e5] hover:bg-[#4338ca] text-white"
+                                            className="hover:bg-green-300 text-white hover:text-black"
                                         >
                                             <Edit2Icon className="w-4 h-4 mr-1" />
                                             Edit
@@ -115,7 +114,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
                                         <Button
                                             onClick={() => onDelete(expense._id)}
                                             variant="destructive"
-                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                            className="hover:bg-red-700 text-white"
                                         >
                                             <TrashIcon className="w-4 h-4 mr-1" />
                                             Delete

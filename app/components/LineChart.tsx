@@ -59,16 +59,16 @@ export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
             dataKey="date"
             tickFormatter={(date) => `${date.toLocaleString('default', { month: 'short' })}-${date.getFullYear()}`}
             stroke="#86EFAC"
-            strokeWidth={10}
+            // strokeWidth={10}
             fontSize={14}
-            tickLine={false}
-            axisLine={false}
+            tickLine={true}
+            axisLine={true}
           />
           <YAxis
             stroke="#86EFAC"
             fontSize={14}
-            tickLine={false}
-            axisLine={false}
+            tickLine={true}
+            axisLine={true}
             tickFormatter={(value: number) => `$${Number(value).toFixed(2)}`}
             domain={[0, maxValue]}
           />

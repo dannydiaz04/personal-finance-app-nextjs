@@ -60,11 +60,15 @@ export function BarChart({ data, xKey, yKey, title }: BarChartProps ) {
               dataKey={xKey}
               fontSize={14}
               stroke="#86EFAC"
+              tickLine={true}
+              axisLine={true}
               tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
             />
             <YAxis 
               tickFormatter={(value) => `$${Number(value).toFixed(2)}`} 
               stroke="#86EFAC"
+              tickLine={true}
+              axisLine={true}
               fontSize={14}
               domain={[0, maxValue]} // Set the domain to the max value to ensure that the bars are not cut off
             />
