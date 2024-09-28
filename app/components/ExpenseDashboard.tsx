@@ -159,11 +159,11 @@ export default function ExpenseDashboard() {
   }, [isFilterOpen])
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
+    // window.addEventListener('scroll', handleScroll)
     window.addEventListener('mousemove', handleMouseMove)
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
+      // window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [handleScroll, handleMouseMove])
@@ -173,7 +173,7 @@ export default function ExpenseDashboard() {
       {!isFilterOpen && isFilterButtonVisible && (
         <Button 
           onClick={toggleFilter} 
-          className="fixed top-4 left-4 z-50 transition-opacity duration-300 ease-in-out opacity-0 hover:opacity-100"
+          className="fixed top-4 left-4 z-50 transition-opacity duration-300 ease-in-out"
           variant="outline"
         >
           <Menu className="h-4 w-4 mr-2" />

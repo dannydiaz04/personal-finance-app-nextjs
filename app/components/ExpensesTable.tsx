@@ -28,7 +28,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
     const sortedExpenses = [...expenses].sort((a, b) => {
@@ -81,14 +81,14 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-black font-semibold cursor-pointer py-3 px-4"
+                                    className="text-black font-bold cursor-pointer py-3 px-4 text-[18px] w-1/6 break-words" // Set font size to 18px and fixed width
                                     onClick={() => handleSort(key)}
                                 >
                                     <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                                     <SortIcon columnKey={key} />
                                 </TableHead>
                             ))}
-                            <TableHead className="text-black font-semibold py-3 px-4">Actions</TableHead>
+                            <TableHead className="text-black text-center font-bold py-3 px-4 text-[18px] w-1/6 break-words">Actions</TableHead> {/* Set font size to 18px and fixed width */}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -97,12 +97,12 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
                                 key={expense._id} 
                                 className={`border-b border-gray-700 ${index % 2 === 0 ? 'bg-[#1c2537]' : 'bg-[#0f1729]'}`}
                             >
-                                <TableCell className="py-3 px-4">{formatDate(expense.date)}</TableCell>
-                                <TableCell className="py-3 px-4">${expense.amount.toFixed(2)}</TableCell>
-                                <TableCell className="py-3 px-4">{expense.category}</TableCell>
-                                <TableCell className="py-3 px-4">{expense.subcategory}</TableCell>
-                                <TableCell className="py-3 px-4">{expense.description}</TableCell>
-                                <TableCell className="py-3 px-4">
+                                <TableCell className="py-3 px-4 text-[16px] break-words w-1/12">{formatDate(expense.date)}</TableCell>
+                                <TableCell className="py-3 px-4 text-green-500 font-bold text-[16px] break-words w-1/12">${expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="py-3 px-4 text-[16px] break-words w-1/12">{expense.category}</TableCell>
+                                <TableCell className="py-3 px-4 text-[16px] break-words w-1/12">{expense.subcategory}</TableCell>
+                                <TableCell className="py-3 px-4 text-[16px] break-words w-1/3">{expense.description}</TableCell>
+                                <TableCell className="py-3 px-4 w-1/6">
                                     <div className="flex space-x-2">
                                         <Button
                                             onClick={() => onEdit(expense)}

@@ -61,9 +61,9 @@ const Home = () => {
             <Navbar />
             <div className="pt-16 text-white p-8">
                 <div className="max-w-6xl mx-auto space-y-8">
-                    <div className="text-center space-y-4">
-                        <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 animate-pulse mb-12">
-                            {greeting} {emoji}
+                    <div className="text-center space-y-4"> {/* Increased height to 48 (12rem) */}
+                        <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 animate-pulse mb-12 z-50 relative h-42">
+                            {greeting} <span className="text-white">{emoji}</span>
                         </h1>
                         <p className="text-3xl md:text-4xl text-gray-300 mb-8">
                             Hello, {session?.user?.first_name || 'User'}, you financial mastermind, you!
