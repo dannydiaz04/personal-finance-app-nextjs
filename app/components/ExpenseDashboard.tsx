@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import TankCard from './tank-card'
 import { Menu } from "lucide-react"
+import { stringToColor } from '../lib/utils' // We'll create this utility function
 
 interface Expense {
   _id: string
@@ -214,7 +215,7 @@ export default function ExpenseDashboard() {
                   subValue={`$${(category.targetAmount || 0).toFixed(2)}`}
                   subLabel="Target Amount"
                   data={[{ value: category.remainingAmount || 0 }]}
-                  color={getRandomColor()}
+                  color={stringToColor(category.category)} // Use the new utility function
                   fillPercentage={calculateFillPercentage(category.remainingAmount, category.targetAmount)}
                 />
               </CardContent>
@@ -267,12 +268,6 @@ export default function ExpenseDashboard() {
       </div>
     </div>
   )
-}
-
-function getRandomColor() {
-  const blue = Math.floor(Math.random() * 128);
-  const green = Math.floor(Math.random() * 128);
-  return `rgb(0, ${green + 127}, ${blue + 127})`;
 }
 
 function calculateFillPercentage(remainingAmount: number | null | undefined, targetAmount: number | null | undefined): number {
