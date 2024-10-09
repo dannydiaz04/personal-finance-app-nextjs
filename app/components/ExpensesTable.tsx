@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+'use client'
+
+import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Edit2Icon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 
 interface Expense {
@@ -17,6 +20,7 @@ interface ExpensesTableProps {
     expenses: Expense[];
     onEdit: (expense: Expense) => void;
     onDelete: (id: string) => void;
+    onAddExpense: () => void;
 }
 
 type SortKey = keyof Omit<Expense, '_id'>;
@@ -70,25 +74,25 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
                 </div>
                 <Button 
                     className="bg-[#4f46e5] hover:bg-[#4338ca] text-white"
-                    onClick={() => onAddExpense()}>
+                    onClick={onAddExpense}>
                     Add Expense
                 </Button>
             </div>
-            <div className="overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
                 <Table className="w-full">
                     <TableHeader>
                         <TableRow className="bg-green-300 opacity-90 hover:bg-green-300 border-b border-gray-700">
                             {(['date', 'amount', 'category', 'subcategory', 'description'] as const).map((key) => (
                                 <TableHead 
                                     key={key}
-                                    className="text-black font-bold cursor-pointer py-3 px-4 text-[18px] w-1/6 break-words" // Set font size to 18px and fixed width
+                                    className="text-black font-bold cursor-pointer py-3 px-4 text-[18px] w-1/6 break-words"
                                     onClick={() => handleSort(key)}
                                 >
                                     <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                                     <SortIcon columnKey={key} />
                                 </TableHead>
                             ))}
-                            <TableHead className="text-black text-center font-bold py-3 px-4 text-[18px] w-1/6 break-words">Actions</TableHead> {/* Set font size to 18px and fixed width */}
+                            <TableHead className="text-black text-center font-bold py-3 px-4 text-[18px] w-1/6 break-words">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -125,6 +129,40 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAddExpense
                         ))}
                     </TableBody>
                 </Table>
+            </div>
+            <div className="md:hidden space-y-4">
+                {sortedExpenses.map((expense) => (
+                    <Card key={expense._id} className="bg-[#1c2537] text-white border-gray-700">
+                        <CardHeader>
+                            <CardTitle className="flex justify-between items-center">
+                                <span>{formatDate(expense.date)}</span>
+                                <span className="text-green-500 font-bold">${expense.amount.toFixed(2)}</span>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p><strong>Category:</strong> {expense.category}</p>
+                            <p><strong>Subcategory:</strong> {expense.subcategory}</p>
+                            <p><strong>Description:</strong> {expense.description}</p>
+                        </CardContent>
+                        <CardFooter className="flex justify-between">
+                            <Button
+                                onClick={() => onEdit(expense)}
+                                className="hover:bg-green-300 text-white hover:text-black"
+                            >
+                                <Edit2Icon className="w-4 h-4 mr-1" />
+                                Edit
+                            </Button>
+                            <Button
+                                onClick={() => onDelete(expense._id)}
+                                variant="destructive"
+                                className="hover:bg-red-700 text-white"
+                            >
+                                <TrashIcon className="w-4 h-4 mr-1" />
+                                Delete
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                ))}
             </div>
         </div>
     );
