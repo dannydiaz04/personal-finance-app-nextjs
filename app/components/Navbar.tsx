@@ -3,14 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import { useRouter } from 'next/router'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isTransparent, setIsTransparent] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
@@ -56,13 +54,6 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
-
-  const handleSignOut = async () => {
-    const response = await fetch('/api/auth/signout', { method: 'POST' })
-    if (response.ok) {
-      router.push('/login')
-    }
-  }
 
   return (
     <>
@@ -116,12 +107,9 @@ export default function Navbar() {
             <Link href="/expenses" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700 transition duration-150 ease-in-out">
               Expenses
             </Link>
-            <button
-              onClick={handleSignOut}
-              className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700 transition duration-150 ease-in-out"
-            >
+            <Link href="/api/auth/signout" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700 transition duration-150 ease-in-out">
               Logout
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
